@@ -1,4 +1,4 @@
-#ifndef MESSAGESENDER_H
+п»ї#ifndef MESSAGESENDER_H
 #define MESSAGESENDER_H
 
 #include <string>
@@ -9,15 +9,15 @@ class MessageSender {
 public:
 
 	void setDefaultSaveDir(const std::string& default_dir);
-    // Метод для отправки зашифрованного сообщения
+    // РњРµС‚РѕРґ РґР»СЏ РѕС‚РїСЂР°РІРєРё Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 	std::string sendEncryptedMessage(const std::string& from, const std::string& to, const Message& message);
-	// Метод для загрузки публичного ключа получателя
+	// РњРµС‚РѕРґ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР»СЋС‡Р° РїРѕР»СѓС‡Р°С‚РµР»СЏ
 	static std::string loadPublicKey(const std::string& recipient);
 	static std::string getFileName(const std::string& recipient, const std::string& default_dir);
 
 private:
 
-	std::string default_dir = "Отправка";
+	std::string default_dir = "РћС‚РїСЂР°РІРєР°";
 
 };
 

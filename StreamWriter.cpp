@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+п»ї//---------------------------------------------------------------------------
 
 #pragma hdrstop
 #include <vcl.h>
@@ -8,30 +8,30 @@
 #include "StreamWriter.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-// Функция для записи заголовка и файлов в один файл-криптограмму
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ Р·Р°РїРёСЃРё Р·Р°РіРѕР»РѕРІРєР° Рё С„Р°Р№Р»РѕРІ РІ РѕРґРёРЅ С„Р°Р№Р»-РєСЂРёРїС‚РѕРіСЂР°РјРјСѓ
 void writeFilesWithHeader(const std::map<std::string, std::string>& files, const std::string& outputFilename) {
-    // Шаг 1: Создаем заголовок
+    // РЁР°Рі 1: РЎРѕР·РґР°РµРј Р·Р°РіРѕР»РѕРІРѕРє
     Header header;
     for (const auto& [filename, filepath] : files) {
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
-            std::cerr << "Ошибка открытия файла: " << filepath << std::endl;
+            std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°: " << filepath << std::endl;
             continue;
         }
 
-        // Записываем в заголовок имя файла и его размер
+        // Р—Р°РїРёСЃС‹РІР°РµРј РІ Р·Р°РіРѕР»РѕРІРѕРє РёРјСЏ С„Р°Р№Р»Р° Рё РµРіРѕ СЂР°Р·РјРµСЂ
         header.fileInfo[filename] = static_cast<size_t>(file.tellg());
         file.close();
     }
 
-    // Открываем файл для записи заголовка и данных
+    // РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё Р·Р°РіРѕР»РѕРІРєР° Рё РґР°РЅРЅС‹С…
     std::ofstream outputFile(outputFilename, std::ios::binary);
     if (!outputFile.is_open()) {
-        std::cerr << "Ошибка открытия выходного файла" << std::endl;
+        std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°" << std::endl;
         return;
     }
 
-    // Шаг 2: Сериализуем заголовок в байты с помощью Boost.Serialization
+    // РЁР°Рі 2: РЎРµСЂРёР°Р»РёР·СѓРµРј Р·Р°РіРѕР»РѕРІРѕРє РІ Р±Р°Р№С‚С‹ СЃ РїРѕРјРѕС‰СЊСЋ Boost.Serialization
     std::stringstream headerStream;
     {
         boost::archive::binary_oarchive oa(headerStream);
@@ -39,22 +39,22 @@ void writeFilesWithHeader(const std::map<std::string, std::string>& files, const
     }
     std::string serializedHeader = headerStream.str();
 
-    // Шаг 3: Записываем размер заголовка в файл
+    // РЁР°Рі 3: Р—Р°РїРёСЃС‹РІР°РµРј СЂР°Р·РјРµСЂ Р·Р°РіРѕР»РѕРІРєР° РІ С„Р°Р№Р»
     size_t headerSize = serializedHeader.size();
     outputFile.write(reinterpret_cast<const char*>(&headerSize), sizeof(headerSize));
 
-    // Шаг 4: Записываем сам сериализованный заголовок
+    // РЁР°Рі 4: Р—Р°РїРёСЃС‹РІР°РµРј СЃР°Рј СЃРµСЂРёР°Р»РёР·РѕРІР°РЅРЅС‹Р№ Р·Р°РіРѕР»РѕРІРѕРє
     outputFile.write(serializedHeader.c_str(), headerSize);
 
-    // Шаг 5: Записываем файлы в поток
+    // РЁР°Рі 5: Р—Р°РїРёСЃС‹РІР°РµРј С„Р°Р№Р»С‹ РІ РїРѕС‚РѕРє
     for (const auto& [filename, filepath] : files) {
         std::ifstream file(filepath, std::ios::binary);
         if (!file.is_open()) {
-            std::cerr << "Ошибка открытия файла для записи: " << filepath << std::endl;
+            std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РґР»СЏ Р·Р°РїРёСЃРё: " << filepath << std::endl;
             continue;
         }
 
-        // Копируем содержимое файла в выходной файл
+        // РљРѕРїРёСЂСѓРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ С„Р°Р№Р»Р° РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
         outputFile << file.rdbuf();
         file.close();
 	}
@@ -62,23 +62,23 @@ void writeFilesWithHeader(const std::map<std::string, std::string>& files, const
 	outputFile.close();
 }
 
-// Функция для чтения заголовка и восстановления файлов
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ С‡С‚РµРЅРёСЏ Р·Р°РіРѕР»РѕРІРєР° Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ С„Р°Р№Р»РѕРІ
 void readFilesWithHeader(const std::string& inputFilename, const std::string& outputDirectory) {
 	std::ifstream inputFile(inputFilename, std::ios::binary);
 	if (!inputFile.is_open()) {
-		std::cerr << "Ошибка открытия входного файла" << std::endl;
+		std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°" << std::endl;
 		return;
 	}
 
-	// Шаг 1: Читаем размер заголовка
+	// РЁР°Рі 1: Р§РёС‚Р°РµРј СЂР°Р·РјРµСЂ Р·Р°РіРѕР»РѕРІРєР°
 	size_t headerSize;
 	inputFile.read(reinterpret_cast<char*>(&headerSize), sizeof(headerSize));
 
-    // Шаг 2: Читаем сериализованный заголовок
+    // РЁР°Рі 2: Р§РёС‚Р°РµРј СЃРµСЂРёР°Р»РёР·РѕРІР°РЅРЅС‹Р№ Р·Р°РіРѕР»РѕРІРѕРє
     std::vector<char> headerBuffer(headerSize);
     inputFile.read(headerBuffer.data(), headerSize);
 
-    // Шаг 3: Десериализуем заголовок с помощью Boost.Serialization
+    // РЁР°Рі 3: Р”РµСЃРµСЂРёР°Р»РёР·СѓРµРј Р·Р°РіРѕР»РѕРІРѕРє СЃ РїРѕРјРѕС‰СЊСЋ Boost.Serialization
     Header header;
 	std::stringstream headerStream(std::string(headerBuffer.begin(), headerBuffer.end()));
     {
@@ -86,15 +86,15 @@ void readFilesWithHeader(const std::string& inputFilename, const std::string& ou
         ia >> header;
 	}
 
-    // Шаг 4: Читаем и восстанавливаем файлы на основе заголовка
+    // РЁР°Рі 4: Р§РёС‚Р°РµРј Рё РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р°Р№Р»С‹ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РіРѕР»РѕРІРєР°
 	for (const auto& [filename, filesize] : header.fileInfo) {
         std::ofstream outputFile(outputDirectory + "/" + filename, std::ios::binary);
         if (!outputFile.is_open()) {
-			std::cerr << "Ошибка создания выходного файла: " << filename << std::endl;
+			std::cerr << "РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°: " << filename << std::endl;
             continue;
 		}
 
-		// Читаем файл из потока
+		// Р§РёС‚Р°РµРј С„Р°Р№Р» РёР· РїРѕС‚РѕРєР°
         std::vector<char> fileBuffer(filesize);
         inputFile.read(fileBuffer.data(), filesize);
 		outputFile.write(fileBuffer.data(), filesize);
@@ -109,9 +109,9 @@ void readFilesWithHeader(const std::string& inputFilename, const std::string& ou
 std::map<std::string, std::string> CreateFileMap(const std::vector<String>& files) {
     std::map<std::string, std::string> fileMap;
 	for (const auto& filePath : files) {
-        // Извлекаем имя файла с помощью ExtractFileName
+        // РР·РІР»РµРєР°РµРј РёРјСЏ С„Р°Р№Р»Р° СЃ РїРѕРјРѕС‰СЊСЋ ExtractFileName
         String fileName = ExtractFileName(filePath);
-        // Добавляем запись в std::map: имя файла -> полный путь
+        // Р”РѕР±Р°РІР»СЏРµРј Р·Р°РїРёСЃСЊ РІ std::map: РёРјСЏ С„Р°Р№Р»Р° -> РїРѕР»РЅС‹Р№ РїСѓС‚СЊ
         fileMap[std::string(AnsiString(fileName).c_str())] = std::string(AnsiString(filePath).c_str());
     }
     return fileMap;

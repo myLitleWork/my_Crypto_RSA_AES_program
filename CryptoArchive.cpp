@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+п»ї//---------------------------------------------------------------------------
 
 #pragma hdrstop
 
@@ -27,15 +27,15 @@ uint64_t CryptoArchiveCreator::getTotalFileSize(const std::vector<std::string>& 
 		try {
 			totalSize += std::filesystem::file_size(filePath);
 		} catch (const std::filesystem::filesystem_error& e) {
-			// Обработка ошибок, если файл недоступен или его размер не удается получить
-			std::cerr << "Ошибка доступа к файлу " << filePath << ": " << e.what() << std::endl;
+			// РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє, РµСЃР»Рё С„Р°Р№Р» РЅРµРґРѕСЃС‚СѓРїРµРЅ РёР»Рё РµРіРѕ СЂР°Р·РјРµСЂ РЅРµ СѓРґР°РµС‚СЃСЏ РїРѕР»СѓС‡РёС‚СЊ
+			std::cerr << "РћС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє С„Р°Р№Р»Сѓ " << filePath << ": " << e.what() << std::endl;
 		}
     }
     return totalSize;
 }
 
 void CryptoArchiveCreator::updateProgress(uint64_t processed, uint64_t total) {
-    if (progress != nullptr && total > 0) { // Проверка деления на ноль
+    if (progress != nullptr && total > 0) { // РџСЂРѕРІРµСЂРєР° РґРµР»РµРЅРёСЏ РЅР° РЅРѕР»СЊ
         *progress = static_cast<int>((static_cast<double>(processed) / total) * 100);
     }
 }
@@ -64,65 +64,65 @@ std::string CryptoArchiveCreator::loadPublicKey(const std::string& recipient) {
 	std::string pub_key_filename = getExecutablePath() + "/rsa_keys/" + recipient + "_pubkey.pem";
 
 	if (!std::filesystem::exists(pub_key_filename)) {
-		throw "Открытый RSA-ключ абонента '" + recipient + "' не найден!"; // Возвращаем пустую строку, если ключ не найден
+		throw "РћС‚РєСЂС‹С‚С‹Р№ RSA-РєР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '" + recipient + "' РЅРµ РЅР°Р№РґРµРЅ!"; // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ, РµСЃР»Рё РєР»СЋС‡ РЅРµ РЅР°Р№РґРµРЅ
 	}
 
 	std::ifstream pub_key_file(pub_key_filename);
 	std::stringstream pub_key_stream;
 	pub_key_stream << pub_key_file.rdbuf();
-	return pub_key_stream.str(); // Возвращаем содержимое публичного ключа
+	return pub_key_stream.str(); // Р’РѕР·РІСЂР°С‰Р°РµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР»СЋС‡Р°
 }
 
-// Основная функция для создания криптоархива
+// РћСЃРЅРѕРІРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РєСЂРёРїС‚РѕР°СЂС…РёРІР°
 const std::string CryptoArchiveCreator::createArchive(const std::vector<std::string>& filePaths, const std::string& _textHeader) {
 
     if(sender.empty())
-		throw "Не задан отправитель!";
+		throw "РќРµ Р·Р°РґР°РЅ РѕС‚РїСЂР°РІРёС‚РµР»СЊ!";
 
-	// Генерация AES ключа
+	// Р“РµРЅРµСЂР°С†РёСЏ AES РєР»СЋС‡Р°
 	generateAESKey();
 
-    // Шифрование AES ключа с использованием RSA
+    // РЁРёС„СЂРѕРІР°РЅРёРµ AES РєР»СЋС‡Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј RSA
     std::vector<uint8_t> encryptedAESKey;
     encryptAESKey(encryptedAESKey);
 
-	// Создание заголовка с информацией о файлах
+	// РЎРѕР·РґР°РЅРёРµ Р·Р°РіРѕР»РѕРІРєР° СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ С„Р°Р№Р»Р°С…
 	Header header;
-	header.textHeader = _textHeader;  // Устанавливаем текст заголовка
-	header.from = sender;            // Устанавливаем отправителя
+	header.textHeader = _textHeader;  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚РµРєСЃС‚ Р·Р°РіРѕР»РѕРІРєР°
+	header.from = sender;            // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РѕС‚РїСЂР°РІРёС‚РµР»СЏ
 	for (const auto& filePath : filePaths) {
 
 		size_t fileSize;
 		try {
 			fileSize = std::filesystem::file_size(filePath);
 		} catch (const std::filesystem::filesystem_error& e) {
-			// Обработка ошибок, если файл недоступен или его размер не удается получить
-			std::cerr << "Ошибка доступа к файлу " << filePath << ": " << e.what() << std::endl;
+			// РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє, РµСЃР»Рё С„Р°Р№Р» РЅРµРґРѕСЃС‚СѓРїРµРЅ РёР»Рё РµРіРѕ СЂР°Р·РјРµСЂ РЅРµ СѓРґР°РµС‚СЃСЏ РїРѕР»СѓС‡РёС‚СЊ
+			std::cerr << "РћС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє С„Р°Р№Р»Сѓ " << filePath << ": " << e.what() << std::endl;
 		}
 		std::string fileName = fs::path(filePath).filename().string();
 		header.fileInfo.push_back( {fileName, fileSize} );
 
 	}
 
-	// Сериализация заголовка
+	// РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ Р·Р°РіРѕР»РѕРІРєР°
     std::vector<uint8_t> serializedHeader;
 	serializeHeader(header, serializedHeader);
 
-    // Шифрование заголовка с помощью AES
+    // РЁРёС„СЂРѕРІР°РЅРёРµ Р·Р°РіРѕР»РѕРІРєР° СЃ РїРѕРјРѕС‰СЊСЋ AES
     std::vector<uint8_t> encryptedHeader = myCrypto::AESEncrypt(serializedHeader, aesKey);
 
-    // Получение имени криптоархива на основе имени получателя
+    // РџРѕР»СѓС‡РµРЅРёРµ РёРјРµРЅРё РєСЂРёРїС‚РѕР°СЂС…РёРІР° РЅР° РѕСЃРЅРѕРІРµ РёРјРµРЅРё РїРѕР»СѓС‡Р°С‚РµР»СЏ
 	std::string outputFilename = getArchiveFilename();
 
-    // Запись зашифрованного архива
+    // Р—Р°РїРёСЃСЊ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ Р°СЂС…РёРІР°
 	writeEncryptedArchive(filePaths, outputFilename, encryptedAESKey, encryptedHeader);
 
     return outputFilename;
 }
 
-// Здесь вы реализуете вашу функцию для генерации имени криптоархива
+// Р—РґРµСЃСЊ РІС‹ СЂРµР°Р»РёР·СѓРµС‚Рµ РІР°С€Сѓ С„СѓРЅРєС†РёСЋ РґР»СЏ РіРµРЅРµСЂР°С†РёРё РёРјРµРЅРё РєСЂРёРїС‚РѕР°СЂС…РёРІР°
 std::string CryptoArchiveCreator::getArchiveFilename() {
-	// Пример генерации имени на основе имени получателя и базовой директории
+	// РџСЂРёРјРµСЂ РіРµРЅРµСЂР°С†РёРё РёРјРµРЅРё РЅР° РѕСЃРЅРѕРІРµ РёРјРµРЅРё РїРѕР»СѓС‡Р°С‚РµР»СЏ Рё Р±Р°Р·РѕРІРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё
 
 	 if (!fs::exists(baseOutputDir)) {
 		fs::create_directory(baseOutputDir);
@@ -132,7 +132,7 @@ std::string CryptoArchiveCreator::getArchiveFilename() {
 	std::string filename = baseOutputDir + "\\" + base_filename;
 	int index = 1;
 
-	// Если файл с таким именем уже существует, добавляем индекс
+	// Р•СЃР»Рё С„Р°Р№Р» СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, РґРѕР±Р°РІР»СЏРµРј РёРЅРґРµРєСЃ
     while (std::filesystem::exists(filename)) {
 		filename = baseOutputDir + "\\" + recipient + "_" + std::to_string(index++) + ".cry2";
 	}
@@ -144,7 +144,7 @@ std::string CryptoArchiveCreator::getArchiveFilename() {
 void CryptoArchiveCreator::writeEncryptedArchive(const std::vector<std::string>& filePaths, const std::string& outputFilename, const std::vector<uint8_t>& encryptedAESKey, const std::vector<uint8_t>& encryptedHeader) {
     std::ofstream outputFile(outputFilename, std::ios::binary);
     if (!outputFile.is_open()) {
-        std::cerr << "Ошибка открытия выходного файла для записи архива" << std::endl;
+        std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° РґР»СЏ Р·Р°РїРёСЃРё Р°СЂС…РёРІР°" << std::endl;
         return;
     }
 
@@ -165,17 +165,17 @@ void CryptoArchiveCreator::writeEncryptedArchive(const std::vector<std::string>&
     for (const auto& filePath : filePaths) {
         std::ifstream inputFile(filePath, std::ios::binary);
         if (!inputFile.is_open()) {
-            std::cerr << "Ошибка открытия файла: " << filePath << std::endl;
+            std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°: " << filePath << std::endl;
             continue;
         }
 
         while (!inputFile.eof()) {
-            if (stopRequested && stopRequested->load()) {  // Проверяем флаг остановки
-                std::cerr << "Процесс шифрования был остановлен." << std::endl;
+            if (stopRequested && stopRequested->load()) {  // РџСЂРѕРІРµСЂСЏРµРј С„Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё
+                std::cerr << "РџСЂРѕС†РµСЃСЃ С€РёС„СЂРѕРІР°РЅРёСЏ Р±С‹Р» РѕСЃС‚Р°РЅРѕРІР»РµРЅ." << std::endl;
                 inputFile.close();
                 outputFile.close();
-                std::remove(outputFilename.c_str());  // Удаляем созданный файл архива
-                return;  // Корректный выход без выброса исключения
+                std::remove(outputFilename.c_str());  // РЈРґР°Р»СЏРµРј СЃРѕР·РґР°РЅРЅС‹Р№ С„Р°Р№Р» Р°СЂС…РёРІР°
+                return;  // РљРѕСЂСЂРµРєС‚РЅС‹Р№ РІС‹С…РѕРґ Р±РµР· РІС‹Р±СЂРѕСЃР° РёСЃРєР»СЋС‡РµРЅРёСЏ
             }
 
 
@@ -192,7 +192,7 @@ void CryptoArchiveCreator::writeEncryptedArchive(const std::vector<std::string>&
                 outputFile.write(reinterpret_cast<const char*>(encryptedData.data()), encryptedDataSize);
 
                 processedSize += bytesRead;
-                updateProgress(processedSize, totalSize);  // Обновляем прогресс
+                updateProgress(processedSize, totalSize);  // РћР±РЅРѕРІР»СЏРµРј РїСЂРѕРіСЂРµСЃСЃ
             }
         }
         inputFile.close();

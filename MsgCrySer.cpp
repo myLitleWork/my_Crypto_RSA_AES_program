@@ -1,4 +1,4 @@
-#include "Message.h"
+п»ї#include "Message.h"
 
 #include "MsgCrySer.h"
 #include <boost/archive/binary_oarchive.hpp>
@@ -12,106 +12,106 @@
 #include <sstream>
 #include <vector>
 
-// Сериализация Message в байты
+// РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ Message РІ Р±Р°Р№С‚С‹
 std::vector<BYTE> MessageCryptaSerializer::serializeMessage(const Message& message) {
-	std::ostringstream oss(std::ios::binary);  // Создаём поток для записи
-	boost::archive::binary_oarchive oa(oss);   // Используем стандартный бинарный архив
+	std::ostringstream oss(std::ios::binary);  // РЎРѕР·РґР°С‘Рј РїРѕС‚РѕРє РґР»СЏ Р·Р°РїРёСЃРё
+	boost::archive::binary_oarchive oa(oss);   // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ
 
-	oa << message;  // Сериализуем объект Message в архив
+	oa << message;  // РЎРµСЂРёР°Р»РёР·СѓРµРј РѕР±СЉРµРєС‚ Message РІ Р°СЂС…РёРІ
 
 	std::string str = oss.str();
 	std::vector<BYTE> buffer;
 
-	// Перемещаем символы из строки в вектор с использованием индекса
-	buffer.reserve(str.size());  // Резервируем память заранее для повышения эффективности
+	// РџРµСЂРµРјРµС‰Р°РµРј СЃРёРјРІРѕР»С‹ РёР· СЃС‚СЂРѕРєРё РІ РІРµРєС‚РѕСЂ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РёРЅРґРµРєСЃР°
+	buffer.reserve(str.size());  // Р РµР·РµСЂРІРёСЂСѓРµРј РїР°РјСЏС‚СЊ Р·Р°СЂР°РЅРµРµ РґР»СЏ РїРѕРІС‹С€РµРЅРёСЏ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё
 	for (size_t i = 0; i < str.size(); ++i) {
-		buffer.push_back(static_cast<BYTE>(str[i]));  // Добавляем символ в вектор
+		buffer.push_back(static_cast<BYTE>(str[i]));  // Р”РѕР±Р°РІР»СЏРµРј СЃРёРјРІРѕР» РІ РІРµРєС‚РѕСЂ
 	}
 	return buffer;
 }
 
-// Десериализация Message из байтов
+// Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ Message РёР· Р±Р°Р№С‚РѕРІ
 
 Message MessageCryptaSerializer::deserializeMessage(const std::vector<BYTE>& data) {
-    // Используем array_source для чтения данных непосредственно из вектора
+    // РСЃРїРѕР»СЊР·СѓРµРј array_source РґР»СЏ С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РёР· РІРµРєС‚РѕСЂР°
     boost::iostreams::array_source source(reinterpret_cast<const char*>(data.data()), data.size());
     boost::iostreams::stream<boost::iostreams::array_source> iss(source);
-    boost::archive::binary_iarchive ia(iss);  // Используем стандартный бинарный архив для десериализации
+    boost::archive::binary_iarchive ia(iss);  // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ РґР»СЏ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё
     Message message;
-    ia >> message;  // Десериализуем объект Message
+    ia >> message;  // Р”РµСЃРµСЂРёР°Р»РёР·СѓРµРј РѕР±СЉРµРєС‚ Message
     return message;
 }
-// Сохранение Message в файл
+// РЎРѕС…СЂР°РЅРµРЅРёРµ Message РІ С„Р°Р№Р»
 void MessageCryptaSerializer::saveMessageToFile(const Message& message, const std::string& filepath) {
     std::ofstream ofs(filepath, std::ios::binary);
     if (!ofs.is_open()) {
         throw std::runtime_error("Could not open file: " + filepath);
     }
-    boost::archive::binary_oarchive oa(ofs);  // Стандартный бинарный архив
-    oa << message;  // Сериализация в файл
+    boost::archive::binary_oarchive oa(ofs);  // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ
+    oa << message;  // РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ РІ С„Р°Р№Р»
 }
 
-// Загрузка Message из файла
+// Р—Р°РіСЂСѓР·РєР° Message РёР· С„Р°Р№Р»Р°
 Message MessageCryptaSerializer::loadMessageFromFile(const std::string& filepath) {
     std::ifstream ifs(filepath, std::ios::binary);
     if (!ifs.is_open()) {
         throw std::runtime_error("Could not open file: " + filepath);
     }
-    boost::archive::binary_iarchive ia(ifs);  // Стандартный бинарный архив
+    boost::archive::binary_iarchive ia(ifs);  // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ
     Message message;
-    ia >> message;  // Десериализация из файла
+    ia >> message;  // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ РёР· С„Р°Р№Р»Р°
     return message;
 }
 
-// Сериализация Crypta в байты
+// РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ Crypta РІ Р±Р°Р№С‚С‹
 std::vector<BYTE> MessageCryptaSerializer::serializeCrypta(const Crypta& crypta) {
-    std::ostringstream oss(std::ios::binary);  // Создаём поток для записи
-    boost::archive::binary_oarchive oa(oss);   // Используем стандартный бинарный архив
+    std::ostringstream oss(std::ios::binary);  // РЎРѕР·РґР°С‘Рј РїРѕС‚РѕРє РґР»СЏ Р·Р°РїРёСЃРё
+    boost::archive::binary_oarchive oa(oss);   // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ
 
-    oa << crypta;  // Сериализуем объект Crypta
+    oa << crypta;  // РЎРµСЂРёР°Р»РёР·СѓРµРј РѕР±СЉРµРєС‚ Crypta
 
 	std::string str = oss.str();
 	std::vector<BYTE> buffer;
 
-	// Перемещаем символы из строки в вектор с использованием индекса
-	buffer.reserve(str.size());  // Резервируем память заранее для повышения эффективности
+	// РџРµСЂРµРјРµС‰Р°РµРј СЃРёРјРІРѕР»С‹ РёР· СЃС‚СЂРѕРєРё РІ РІРµРєС‚РѕСЂ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РёРЅРґРµРєСЃР°
+	buffer.reserve(str.size());  // Р РµР·РµСЂРІРёСЂСѓРµРј РїР°РјСЏС‚СЊ Р·Р°СЂР°РЅРµРµ РґР»СЏ РїРѕРІС‹С€РµРЅРёСЏ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё
 	for (size_t i = 0; i < str.size(); ++i) {
-		buffer.push_back(static_cast<BYTE>(str[i]));  // Добавляем символ в вектор
+		buffer.push_back(static_cast<BYTE>(str[i]));  // Р”РѕР±Р°РІР»СЏРµРј СЃРёРјРІРѕР» РІ РІРµРєС‚РѕСЂ
 	}
 	return buffer;
 }
 
-// Десериализация Crypta из байтов
+// Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ Crypta РёР· Р±Р°Р№С‚РѕРІ
 Crypta MessageCryptaSerializer::deserializeCrypta(const std::vector<BYTE>& data) {
-    // Используем array_source для чтения данных непосредственно из вектора
+    // РСЃРїРѕР»СЊР·СѓРµРј array_source РґР»СЏ С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РёР· РІРµРєС‚РѕСЂР°
     boost::iostreams::array_source source(reinterpret_cast<const char*>(data.data()), data.size());
     boost::iostreams::stream<boost::iostreams::array_source> iss(source);
-    boost::archive::binary_iarchive ia(iss);  // Используем стандартный бинарный архив для десериализации
+    boost::archive::binary_iarchive ia(iss);  // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ РґР»СЏ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё
     Crypta crypta;
-    ia >> crypta;  // Десериализация объекта Crypta
+    ia >> crypta;  // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ РѕР±СЉРµРєС‚Р° Crypta
     return crypta;
 }
 
-// Сохранение Crypta в файл
+// РЎРѕС…СЂР°РЅРµРЅРёРµ Crypta РІ С„Р°Р№Р»
 void MessageCryptaSerializer::saveCryptaToFile(const Crypta& crypta, const std::string& filepath) {
     std::ofstream ofs(filepath, std::ios::binary);
     if (!ofs.is_open()) {
         throw std::runtime_error("Could not open file: " + filepath);
     }
-    boost::archive::binary_oarchive oa(ofs);  // Стандартный бинарный архив
-    oa << crypta;  // Сериализация объекта Crypta в файл
+    boost::archive::binary_oarchive oa(ofs);  // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ
+    oa << crypta;  // РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ РѕР±СЉРµРєС‚Р° Crypta РІ С„Р°Р№Р»
 }
 
-// Загрузка Crypta из файла
+// Р—Р°РіСЂСѓР·РєР° Crypta РёР· С„Р°Р№Р»Р°
 Crypta MessageCryptaSerializer::loadCryptaFromFile(const std::string& filepath) {
     std::ifstream ifs(filepath, std::ios::binary);
     if (!ifs.is_open()) {
         throw std::runtime_error("Could not open file: " + filepath);
     }
-    boost::archive::binary_iarchive ia(ifs);  // Стандартный бинарный архив
+    boost::archive::binary_iarchive ia(ifs);  // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ Р°СЂС…РёРІ
 
     Crypta crypta;
-    ia >> crypta;  // Десериализация объекта Crypta из файла
+    ia >> crypta;  // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ РѕР±СЉРµРєС‚Р° Crypta РёР· С„Р°Р№Р»Р°
 
     return crypta;
 }

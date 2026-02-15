@@ -1,4 +1,4 @@
-#include "MessageSender.h"
+п»ї#include "MessageSender.h"
 #include "MsgCrySer.h"
 #include <iostream>
 #include <fstream>
@@ -14,39 +14,39 @@ std::string getExecutablePath() {
     return std::string(buffer).substr(0, pos);
 }
 
-// Метод для отправки зашифрованного сообщения
+// РњРµС‚РѕРґ РґР»СЏ РѕС‚РїСЂР°РІРєРё Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 std::string MessageSender::sendEncryptedMessage(const std::string& from, const std::string& to, const Message& message) {
-    // Поиск публичного ключа получателя
+    // РџРѕРёСЃРє РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР»СЋС‡Р° РїРѕР»СѓС‡Р°С‚РµР»СЏ
 	std::string pub_key = loadPublicKey(to);
 
-    // Если публичный ключ не найден, выводим сообщение об ошибке
+    // Р•СЃР»Рё РїСѓР±Р»РёС‡РЅС‹Р№ РєР»СЋС‡ РЅРµ РЅР°Р№РґРµРЅ, РІС‹РІРѕРґРёРј СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ
 	if (pub_key.empty()) {
 		std::cerr << "Public key for recipient '" << to << "' not found." << std::endl;
-		return " - Ключ шифрования не найден для абонента '" + to + "'";
+		return " - РљР»СЋС‡ С€РёС„СЂРѕРІР°РЅРёСЏ РЅРµ РЅР°Р№РґРµРЅ РґР»СЏ Р°Р±РѕРЅРµРЅС‚Р° '" + to + "'";
 	}
 
-	// Шифрование сообщения с использованием публичного ключа
+	// РЁРёС„СЂРѕРІР°РЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР»СЋС‡Р°
 	Crypta crypta(message, pub_key, from);
 
-	// Сохранение зашифрованного сообщения в файл
+	// РЎРѕС…СЂР°РЅРµРЅРёРµ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ РІ С„Р°Р№Р»
 	auto save_crypta_dir = getFileName(to, default_dir);
 	MessageCryptaSerializer::saveCryptaToFile(crypta, save_crypta_dir);
 
-	return " - Сообщение успешно зашифровано для абонента '" + to + "' файл - " + save_crypta_dir;
+	return " - РЎРѕРѕР±С‰РµРЅРёРµ СѓСЃРїРµС€РЅРѕ Р·Р°С€РёС„СЂРѕРІР°РЅРѕ РґР»СЏ Р°Р±РѕРЅРµРЅС‚Р° '" + to + "' С„Р°Р№Р» - " + save_crypta_dir;
 }
 
-// Метод для загрузки публичного ключа получателя
+// РњРµС‚РѕРґ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР»СЋС‡Р° РїРѕР»СѓС‡Р°С‚РµР»СЏ
 std::string MessageSender::loadPublicKey(const std::string& recipient) {
     std::string pub_key_filename = getExecutablePath() + "/rsa_keys/" + recipient + "_pubkey.pem";
 
     if (!std::filesystem::exists(pub_key_filename)) {
-		return ""; // Возвращаем пустую строку, если ключ не найден
+		return ""; // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ, РµСЃР»Рё РєР»СЋС‡ РЅРµ РЅР°Р№РґРµРЅ
     }
 
 	std::ifstream pub_key_file(pub_key_filename);
 	std::stringstream pub_key_stream;
 	pub_key_stream << pub_key_file.rdbuf();
-	return pub_key_stream.str(); // Возвращаем содержимое публичного ключа
+	return pub_key_stream.str(); // Р’РѕР·РІСЂР°С‰Р°РµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР»СЋС‡Р°
 }
 
 std::string MessageSender::getFileName(const std::string& recipient, const std::string& default_dir) {
@@ -57,11 +57,11 @@ std::string MessageSender::getFileName(const std::string& recipient, const std::
 	std::string base_filename = recipient + ".cry";
 	std::string filename = default_dir + "\\" + base_filename;
     int index = 1;
-    // Если файл с таким именем уже существует, добавляем индекс
+    // Р•СЃР»Рё С„Р°Р№Р» СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, РґРѕР±Р°РІР»СЏРµРј РёРЅРґРµРєСЃ
     while (std::filesystem::exists(filename)) {
 		filename = default_dir + "\\" + recipient + "_" + std::to_string(index++) + ".cry";
 	}
-	// Сохраняем объект Crypta в файл
+	// РЎРѕС…СЂР°РЅСЏРµРј РѕР±СЉРµРєС‚ Crypta РІ С„Р°Р№Р»
     return filename;
 }
 

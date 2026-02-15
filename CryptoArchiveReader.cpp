@@ -1,4 +1,4 @@
-#include "CryptoArchiveReader.h"
+п»ї#include "CryptoArchiveReader.h"
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 CryptoArchiveReader::CryptoArchiveReader(const std::string& _recipient, const std::string& _password, std::atomic<bool>* stopFlag, std::atomic<int>* progress)
     : stopRequested(stopFlag), progress(progress) {
     if (baseDecryptionDir.empty())
-        throw "Не иницилизирована базовая директория сохранения!";
+        throw "РќРµ РёРЅРёС†РёР»РёР·РёСЂРѕРІР°РЅР° Р±Р°Р·РѕРІР°СЏ РґРёСЂРµРєС‚РѕСЂРёСЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ!";
 
 	recipient = _recipient;
     rsaPrivateKey = loadPrivateKey(_password);
@@ -55,7 +55,7 @@ std::string CryptoArchiveReader::createDecryptionDirectory(const std::string& se
 	std::string directory = base_directory;
 	int index = 1;
 
-	// Если директория с таким именем уже существует, добавляем индекс
+	// Р•СЃР»Рё РґРёСЂРµРєС‚РѕСЂРёСЏ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, РґРѕР±Р°РІР»СЏРµРј РёРЅРґРµРєСЃ
 	while (fs::exists(directory)) {
 		directory = base_directory + "_" + std::to_string(index++);
 	}
@@ -74,10 +74,10 @@ std::string CryptoArchiveReader::loadPrivateKey(const std::string& password) {
 	std::string pri_key_filename = getExecutablePath() + "/rsa_keys/" + recipient + "_prikey_encrypted.pem";
 
 	if (!std::filesystem::exists(pri_key_filename)) {
-		throw "Закрытый RSA-ключ оператора '" + recipient + "'  - не найден!";
+		throw "Р—Р°РєСЂС‹С‚С‹Р№ RSA-РєР»СЋС‡ РѕРїРµСЂР°С‚РѕСЂР° '" + recipient + "'  - РЅРµ РЅР°Р№РґРµРЅ!";
 	}
 
-	// Загрузка и расшифровка закрытого ключа с использованием AES и пароля
+	// Р—Р°РіСЂСѓР·РєР° Рё СЂР°СЃС€РёС„СЂРѕРІРєР° Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј AES Рё РїР°СЂРѕР»СЏ
 
 	std::ifstream pri_key_file(pri_key_filename, std::ios::binary);
 	std::stringstream pri_key_stream;
@@ -97,22 +97,22 @@ std::string CryptoArchiveReader::decryptArchive(const std::string& encryptedFile
 
     std::ifstream inputFile(encryptedFilename, std::ios::binary);
     if (!inputFile.is_open()) {
-        std::cerr << "Ошибка открытия зашифрованного файла" << std::endl;
-        return "Ошибка открытия зашифрованного файла";
+        std::cerr << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°" << std::endl;
+        return "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°";
     }
 
-    // Расшифровываем AES-ключ
+    // Р Р°СЃС€РёС„СЂРѕРІС‹РІР°РµРј AES-РєР»СЋС‡
     std::string aesKey;
     decryptAESKey(inputFile, aesKey);
 
-    // Десериализуем заголовок
+    // Р”РµСЃРµСЂРёР°Р»РёР·СѓРµРј Р·Р°РіРѕР»РѕРІРѕРє
     Header header;
     deserializeHeader(inputFile, aesKey, header);
 
-    // Создаем директорию для расшифрованных данных на основе отправителя
+    // РЎРѕР·РґР°РµРј РґРёСЂРµРєС‚РѕСЂРёСЋ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РЅР° РѕСЃРЅРѕРІРµ РѕС‚РїСЂР°РІРёС‚РµР»СЏ
     std::string decryptionDir = createDecryptionDirectory(header.from, baseDecryptionDir);
 
-    // Рассчитываем общий размер для прогресса
+    // Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РѕР±С‰РёР№ СЂР°Р·РјРµСЂ РґР»СЏ РїСЂРѕРіСЂРµСЃСЃР°
     size_t totalSize = 0;
     for (const auto& [fileName, fileSize] : header.fileInfo) {
         totalSize += fileSize;
@@ -120,15 +120,15 @@ std::string CryptoArchiveReader::decryptArchive(const std::string& encryptedFile
 
 	size_t processedSize = 0;
 
-    // Проходим по каждому файлу в зашифрованном архиве
+    // РџСЂРѕС…РѕРґРёРј РїРѕ РєР°Р¶РґРѕРјСѓ С„Р°Р№Р»Сѓ РІ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРј Р°СЂС…РёРІРµ
 	for (const auto& [fileName, fileSize] : header.fileInfo) {
 
 
 
-        // Открываем выходной файл
+        // РћС‚РєСЂС‹РІР°РµРј РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
         std::ofstream outputFile(decryptionDir + "\\" + fileName, std::ios::binary);
         if (!outputFile.is_open()) {
-            std::cerr << "Ошибка создания выходного файла: " << fileName << std::endl;
+            std::cerr << "РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°: " << fileName << std::endl;
             continue;
         }
 
@@ -145,24 +145,24 @@ std::string CryptoArchiveReader::decryptArchive(const std::string& encryptedFile
             std::vector<uint8_t> decryptedData = myCrypto::AESDecrypt(encryptedData, aesKey);
 			outputFile.write(reinterpret_cast<const char*>(decryptedData.data()), decryptedData.size());
 
-            // Обновление прогресса
+            // РћР±РЅРѕРІР»РµРЅРёРµ РїСЂРѕРіСЂРµСЃСЃР°
 			processedSize += decryptedData.size();
 			updateProgress(processedSize, totalSize);
 
-            // Проверка, чтобы `bytesToRead` не стало отрицательным
+            // РџСЂРѕРІРµСЂРєР°, С‡С‚РѕР±С‹ `bytesToRead` РЅРµ СЃС‚Р°Р»Рѕ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј
 			if (decryptedData.size() > bytesToRead) {
 				break;
 			}
 
             bytesToRead -= decryptedData.size();
 
-            // Проверка на остановку во время чтения
+            // РџСЂРѕРІРµСЂРєР° РЅР° РѕСЃС‚Р°РЅРѕРІРєСѓ РІРѕ РІСЂРµРјСЏ С‡С‚РµРЅРёСЏ
 			if (stopRequested->load()) {
-				std::cerr << "Процесс расшифрования был остановлен." << std::endl;
+				std::cerr << "РџСЂРѕС†РµСЃСЃ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ Р±С‹Р» РѕСЃС‚Р°РЅРѕРІР»РµРЅ." << std::endl;
 				outputFile.close();
-                // Удаление неполной директории при остановке
+                // РЈРґР°Р»РµРЅРёРµ РЅРµРїРѕР»РЅРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё РїСЂРё РѕСЃС‚Р°РЅРѕРІРєРµ
 				std::filesystem::remove_all(decryptionDir);
-				return "Процесс расшифрования был остановлен.";
+				return "РџСЂРѕС†РµСЃСЃ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ Р±С‹Р» РѕСЃС‚Р°РЅРѕРІР»РµРЅ.";
             }
         }
 
@@ -171,19 +171,19 @@ std::string CryptoArchiveReader::decryptArchive(const std::string& encryptedFile
 
     inputFile.close();
 
-	// Сохранение текста заголовка в файл "header_text.txt"
+	// РЎРѕС…СЂР°РЅРµРЅРёРµ С‚РµРєСЃС‚Р° Р·Р°РіРѕР»РѕРІРєР° РІ С„Р°Р№Р» "header_text.txt"
 	if(header.textHeader.empty())
-		return " - " + decryptionDir + " - успешное расшифрование";
+		return " - " + decryptionDir + " - СѓСЃРїРµС€РЅРѕРµ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёРµ";
 
 	std::ofstream textFile(decryptionDir + "\\header_text.txt");
     if (!textFile.is_open()) {
-        std::cerr << "Ошибка создания файла header_text.txt для сохранения заголовка." << std::endl;
+        std::cerr << "РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р° header_text.txt РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ Р·Р°РіРѕР»РѕРІРєР°." << std::endl;
     } else {
 		textFile << header.textHeader;
 		textFile.close();
     }
 
-	return " - " + decryptionDir + " - успешное расшифрование, заголовок сообщения: \"" + header.textHeader + "\"";
+	return " - " + decryptionDir + " - СѓСЃРїРµС€РЅРѕРµ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёРµ, Р·Р°РіРѕР»РѕРІРѕРє СЃРѕРѕР±С‰РµРЅРёСЏ: \"" + header.textHeader + "\"";
 }
 
 

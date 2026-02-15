@@ -1,4 +1,4 @@
-#ifndef CryptoArchiveReaderH
+п»ї#ifndef CryptoArchiveReaderH
 #define CryptoArchiveReaderH
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
-#include <atomic>  // Добавлено для использования атомарных переменных
+#include <atomic>  // Р”РѕР±Р°РІР»РµРЅРѕ РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р°С‚РѕРјР°СЂРЅС‹С… РїРµСЂРµРјРµРЅРЅС‹С…
 #include "myCrypto.h"
 
 namespace fs = std::filesystem;
@@ -17,24 +17,24 @@ namespace fs = std::filesystem;
 class CryptoArchiveReader {
 
 public:
-    static inline std::string baseDecryptionDir = "";  // Базовая директория для расшифрования
+    static inline std::string baseDecryptionDir = "";  // Р‘Р°Р·РѕРІР°СЏ РґРёСЂРµРєС‚РѕСЂРёСЏ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ
 
-    // Обновленный конструктор принимает закрытый ключ для расшифрования и атомарные переменные
+    // РћР±РЅРѕРІР»РµРЅРЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїСЂРёРЅРёРјР°РµС‚ Р·Р°РєСЂС‹С‚С‹Р№ РєР»СЋС‡ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ Рё Р°С‚РѕРјР°СЂРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 	CryptoArchiveReader(const std::string& _recipient, const std::string& _password, std::atomic<bool>* stopFlag, std::atomic<int>* progress);
 
-    // Метод для расшифрования архива
+    // РњРµС‚РѕРґ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ Р°СЂС…РёРІР°
     std::string decryptArchive(const std::string& encryptedFilename);
 
 private:
 
     std::string recipient;
     std::string rsaPrivateKey;
-    std::atomic<bool>* stopRequested;  // Флаг остановки процесса
-	std::atomic<int>* progress;       // Прогресс выполнения
+    std::atomic<bool>* stopRequested;  // Р¤Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё РїСЂРѕС†РµСЃСЃР°
+	std::atomic<int>* progress;       // РџСЂРѕРіСЂРµСЃСЃ РІС‹РїРѕР»РЅРµРЅРёСЏ
 
     struct Header {
-        std::string textHeader;  // Текст заголовка
-        std::string from;        // Отправитель
+        std::string textHeader;  // РўРµРєСЃС‚ Р·Р°РіРѕР»РѕРІРєР°
+        std::string from;        // РћС‚РїСЂР°РІРёС‚РµР»СЊ
 		std::vector<std::pair<std::string, size_t>> fileInfo;
 
         template<class Archive>
@@ -45,19 +45,19 @@ private:
         }
     };
 
-    // Метод для расшифрования AES-ключа
+    // РњРµС‚РѕРґ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ AES-РєР»СЋС‡Р°
     void decryptAESKey(std::ifstream& inputFile, std::string& aesKey);
 
-    // Метод загрузки и расшифрования ключа
+    // РњРµС‚РѕРґ Р·Р°РіСЂСѓР·РєРё Рё СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ РєР»СЋС‡Р°
     std::string loadPrivateKey(const std::string& password);
 
-    // Метод для десериализации заголовка
+    // РњРµС‚РѕРґ РґР»СЏ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё Р·Р°РіРѕР»РѕРІРєР°
     void deserializeHeader(std::ifstream& inputFile, const std::string& aesKey, Header& header);
 
-    // Метод для создания уникальной директории для расшифрованных данных
+    // РњРµС‚РѕРґ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СѓРЅРёРєР°Р»СЊРЅРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
     std::string createDecryptionDirectory(const std::string& sender, const std::string& baseDecryptionDir);
 
-    // Метод для обновления прогресса
+    // РњРµС‚РѕРґ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕРіСЂРµСЃСЃР°
     void updateProgress(size_t processed, size_t total);
 };
 

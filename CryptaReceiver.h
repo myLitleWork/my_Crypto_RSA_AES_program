@@ -1,4 +1,4 @@
-#ifndef CRYPTARECEIVER_H
+п»ї#ifndef CRYPTARECEIVER_H
 #define CRYPTARECEIVER_H
 
 #include <string>
@@ -6,7 +6,7 @@
 
 class CryptaReceiver {
 public:
-    // Метод для приёма и расшифровки зашифрованного сообщения
+    // РњРµС‚РѕРґ РґР»СЏ РїСЂРёС‘РјР° Рё СЂР°СЃС€РёС„СЂРѕРІРєРё Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 	std::string receiveEncryptedMessage(const std::string& to, const std::string& password, const std::string& cryptaFilePath);
 	void setDefaultSaveDir(const std::string& default_dir);
 
@@ -15,14 +15,14 @@ public:
 
 private:
 
-	std::string default_dir = "Прием";
-	// Метод для загрузки закрытого ключа получателя
+	std::string default_dir = "РџСЂРёРµРј";
+	// РњРµС‚РѕРґ РґР»СЏ Р·Р°РіСЂСѓР·РєРё Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° РїРѕР»СѓС‡Р°С‚РµР»СЏ
 
 
-    // Метод для десериализации Crypta из файла
+    // РњРµС‚РѕРґ РґР»СЏ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё Crypta РёР· С„Р°Р№Р»Р°
     Crypta deserializeCryptaFromFile(const std::string& filePath);
 
-    // Метод для расшифровки и сохранения сообщения
+    // РњРµС‚РѕРґ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІРєРё Рё СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ
 	std::string saveDecryptedMessageToDirectory(const Crypta& crypta, const std::string& privateKey);
 };
 

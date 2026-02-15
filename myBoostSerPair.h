@@ -1,11 +1,11 @@
-//---------------------------------------------------------------------------
+п»ї//---------------------------------------------------------------------------
 
 #ifndef myBoostSerPairH
 #define myBoostSerPairH
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/split_free.hpp>
 
-// Специфическая реализация для std::pair
+// РЎРїРµС†РёС„РёС‡РµСЃРєР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ РґР»СЏ std::pair
 namespace boost {
     namespace serialization {
 

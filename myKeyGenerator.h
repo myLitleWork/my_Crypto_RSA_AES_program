@@ -1,4 +1,4 @@
-#ifndef KEYGENERATOR_H
+п»ї#ifndef KEYGENERATOR_H
 #define KEYGENERATOR_H
 
 #include <string>
@@ -8,12 +8,12 @@ std::string getExecutablePath();
 class KeyGenerator {
 
 public:
-    // Метод для генерации RSA ключей и их сохранения
+    // РњРµС‚РѕРґ РґР»СЏ РіРµРЅРµСЂР°С†РёРё RSA РєР»СЋС‡РµР№ Рё РёС… СЃРѕС…СЂР°РЅРµРЅРёСЏ
 	void GenerateKeys(const std::string& username, const std::string& password);
     static std::string DecryptPrivateKey(const std::string& username, const std::string& password);
 
 private:
-    // Метод для сохранения ключа в файл
+    // РњРµС‚РѕРґ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РєР»СЋС‡Р° РІ С„Р°Р№Р»
 	void SaveKeyToFile(const std::string& filename, const std::string& key);
     static std::string AdjustPasswordToKeyLength(const std::string& password, size_t required_length);
 };

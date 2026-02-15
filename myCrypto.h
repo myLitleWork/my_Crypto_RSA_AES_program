@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <string>
 #include <vector>
 #include <functional>
@@ -31,36 +31,36 @@ namespace dll
 
 class myCrypto
 {
-	// Константы для длины ключей
+	// РљРѕРЅСЃС‚Р°РЅС‚С‹ РґР»СЏ РґР»РёРЅС‹ РєР»СЋС‡РµР№
 
     static inline const size_t aes_key_length = 32;
 	static inline const size_t key_length = 4096;
 
-	// Тип функции для криптографии
+	// РўРёРї С„СѓРЅРєС†РёРё РґР»СЏ РєСЂРёРїС‚РѕРіСЂР°С„РёРё
 	using CryptoFunction = std::function<char*(const unsigned char*, size_t, const unsigned char*, int, int*)>;
 
-	// Универсальная криптографическая функция для строк
+	// РЈРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ РєСЂРёРїС‚РѕРіСЂР°С„РёС‡РµСЃРєР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ СЃС‚СЂРѕРє
 	static std::string CryptoUniversal(const std::string& input_text, const unsigned char* char_key, int key_len, CryptoFunction cryptoFunc);
 
-	// Универсальная криптографическая функция для вектора байт
+	// РЈРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ РєСЂРёРїС‚РѕРіСЂР°С„РёС‡РµСЃРєР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ РІРµРєС‚РѕСЂР° Р±Р°Р№С‚
 	static std::vector<uint8_t> CryptoUniversal(const std::vector<uint8_t>& input_data, const std::string& key, CryptoFunction cryptoFunc);
 
 	myCrypto() = delete;
 
 public:
 
-	// Загрузка ключа из файла
+	// Р—Р°РіСЂСѓР·РєР° РєР»СЋС‡Р° РёР· С„Р°Р№Р»Р°
 	static std::string loadKeyFromFile(const std::string& filename);
 
-    // Шифрование/расшифровка AES
+    // РЁРёС„СЂРѕРІР°РЅРёРµ/СЂР°СЃС€РёС„СЂРѕРІРєР° AES
 	static std::string AESEncrypt(const std::string& input_text, const std::string key);
     static std::string AESDecrypt(const std::string& input_text, const std::string key);
 
-    // Генерация ключа AES
+    // Р“РµРЅРµСЂР°С†РёСЏ РєР»СЋС‡Р° AES
 	static std::string GenerateAESKey();
 	static void GenerateRSAKeys(std::string&  pri_key_out, std::string& pub_key_out);
 
-    // RSA и AES шифрование/расшифровка для вектора данных
+    // RSA Рё AES С€РёС„СЂРѕРІР°РЅРёРµ/СЂР°СЃС€РёС„СЂРѕРІРєР° РґР»СЏ РІРµРєС‚РѕСЂР° РґР°РЅРЅС‹С…
 	static std::vector<uint8_t> RsaPubEncrypt(const std::vector<uint8_t>& input_data, const std::string& pub_key);
 	static std::vector<uint8_t> RsaPriDecrypt(const std::vector<uint8_t>& input_data, const std::string& pri_key);
 	static std::vector<uint8_t> RsaPriEncrypt(const std::vector<uint8_t>& input_data, const std::string& pub_key);

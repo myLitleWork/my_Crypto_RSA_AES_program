@@ -1,22 +1,25 @@
-#include "myCrypto.h"
+п»ї#include "myCrypto.h"
 
 std::string myCrypto::loadKeyFromFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::binary);
-	int key_len;
+
     if (!file.is_open()) {
-		return {};  // Ошибка открытия файла}
+		return {};  // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°}
     }
 
     file.seekg(0, std::ios::end);
-	key_len = file.tellg();
+	std::streamsize key_len = file.tellg();
+	if (key_len <= 0) {
+		return {};
+	}
     file.seekg(0, std::ios::beg);
 
-	char* key = new char[key_len];
-    file.read(key, key_len);
-	file.close();
-
-	auto key_str = std::string(key,key_len);
+	std::string key_str(static_cast<size_t>(key_len), '\0');
+    file.read(key_str.data(), key_len);
+	if (!file) {
+		return {};
+	}
 
 	return key_str;
 }
@@ -31,11 +34,11 @@ std::string myCrypto::CryptoUniversal(const std::string& input_text, const unsig
 
     if (!output_char)
     {
-        return {}; // Возвращаем пустую строку в случае ошибки
+        return {}; // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
     }
 
     std::string output_text(output_char, output_len);
-    dll::myDelete(output_char);  // Удаление зашифрованных данных
+    dll::myDelete(output_char);  // РЈРґР°Р»РµРЅРёРµ Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
 
     return output_text;
 }
@@ -49,11 +52,11 @@ std::vector<uint8_t> myCrypto::CryptoUniversal(const std::vector<uint8_t>& input
 
     if (!output_char)
     {
-		return {}; // Возвращаем пустой вектор в случае ошибки
+		return {}; // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚РѕР№ РІРµРєС‚РѕСЂ РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
 	}
 
 	std::vector<uint8_t> output_data(output_char, output_char + output_len);
-	dll::myDelete(output_char);  // Освобождение памяти
+	dll::myDelete(output_char);  // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё
 
 	return output_data;
 }

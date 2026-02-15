@@ -1,4 +1,4 @@
-#include "myKeyGenerator.h"
+п»ї#include "myKeyGenerator.h"
 #include "myCrypto.h"
 #include <fstream>
 #include <stdexcept>
@@ -19,21 +19,21 @@ void KeyGenerator::GenerateKeys(const std::string& username, const std::string& 
 
 	myCrypto::GenerateRSAKeys(pri_key_str, pub_key_str);
 
-	// Шифрование закрытого ключа с помощью AES
+	// РЁРёС„СЂРѕРІР°РЅРёРµ Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° СЃ РїРѕРјРѕС‰СЊСЋ AES
 	std::string adjusted_password = AdjustPasswordToKeyLength(password, 32);
 
 	std::string encrypted_pri_key = myCrypto::AESEncrypt(pri_key_str, adjusted_password);
 
 
-    // Создание директории, если её не существует
+    // РЎРѕР·РґР°РЅРёРµ РґРёСЂРµРєС‚РѕСЂРёРё, РµСЃР»Рё РµС‘ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
 	if (!fs::exists(getExecutablePath() + "/rsa_keys")) {
 		fs::create_directory(getExecutablePath() + "/rsa_keys");
 	}
 
-	// Сохранение открытого ключа на диск
+	// РЎРѕС…СЂР°РЅРµРЅРёРµ РѕС‚РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° РЅР° РґРёСЃРє
 	SaveKeyToFile(username + "_pubkey.pem", pub_key_str);
 
-    // Сохранение зашифрованного закрытого ключа на диск
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° РЅР° РґРёСЃРє
     SaveKeyToFile(username + "_prikey_encrypted.pem", encrypted_pri_key);
 
 }
@@ -52,17 +52,17 @@ void KeyGenerator::SaveKeyToFile(const std::string& filename, const std::string&
 std::string KeyGenerator::DecryptPrivateKey(const std::string& username, const std::string& password) {
 
 
-    // Имя файла с зашифрованным закрытым ключом
+    // РРјСЏ С„Р°Р№Р»Р° СЃ Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹Рј Р·Р°РєСЂС‹С‚С‹Рј РєР»СЋС‡РѕРј
     std::string encrypted_pri_key_file = getExecutablePath()+ "/rsa_keys/" + username + "_prikey_encrypted.pem";
 
-	// Чтение зашифрованного закрытого ключа из файла
+	// Р§С‚РµРЅРёРµ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° РёР· С„Р°Р№Р»Р°
 	auto encrypted_pri_key = myCrypto::loadKeyFromFile(encrypted_pri_key_file);
 
 	if (encrypted_pri_key.empty()) {
 		throw std::runtime_error("Failed to load encrypted private key.");
 	}
 
-	// Расшифровка закрытого ключа с использованием AES и пароля
+	// Р Р°СЃС€РёС„СЂРѕРІРєР° Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј AES Рё РїР°СЂРѕР»СЏ
 	std::string decrypted_pri_key;
 	std::string adjusted_password = AdjustPasswordToKeyLength(password, 32);
 
@@ -78,11 +78,11 @@ std::string KeyGenerator::DecryptPrivateKey(const std::string& username, const s
 std::string KeyGenerator::AdjustPasswordToKeyLength(const std::string& password, size_t required_length) {
     std::string adjusted_password = password;
 
-    // Если пароль слишком короткий, дополняем его символами до нужной длины
+    // Р•СЃР»Рё РїР°СЂРѕР»СЊ СЃР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРёР№, РґРѕРїРѕР»РЅСЏРµРј РµРіРѕ СЃРёРјРІРѕР»Р°РјРё РґРѕ РЅСѓР¶РЅРѕР№ РґР»РёРЅС‹
     if (adjusted_password.length() < required_length) {
-        adjusted_password.append(required_length - adjusted_password.length(), '0'); // Дополняем нулями
+        adjusted_password.append(required_length - adjusted_password.length(), '0'); // Р”РѕРїРѕР»РЅСЏРµРј РЅСѓР»СЏРјРё
     }
-    // Если пароль слишком длинный, обрезаем его
+    // Р•СЃР»Рё РїР°СЂРѕР»СЊ СЃР»РёС€РєРѕРј РґР»РёРЅРЅС‹Р№, РѕР±СЂРµР·Р°РµРј РµРіРѕ
     else if (adjusted_password.length() > required_length) {
         adjusted_password = adjusted_password.substr(0, required_length);
     }

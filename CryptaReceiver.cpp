@@ -1,4 +1,4 @@
-#include "CryptaReceiver.h"
+п»ї#include "CryptaReceiver.h"
 #include "MsgCrySer.h"
 #include <fstream>
 #include <filesystem>
@@ -14,19 +14,19 @@ std::string getExecutablePath() {
 	return std::string(buffer).substr(0, pos);
 }
 
-// Метод для приёма зашифрованного сообщения
+// РњРµС‚РѕРґ РґР»СЏ РїСЂРёС‘РјР° Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 std::string CryptaReceiver::receiveEncryptedMessage(const std::string& recipient, const std::string& password, const std::string& cryptaFilePath) {
-    // Загрузка закрытого ключа получателя
+    // Р—Р°РіСЂСѓР·РєР° Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° РїРѕР»СѓС‡Р°С‚РµР»СЏ
 	std::string privateKey = loadPrivateKey(recipient, password);
 
 	if (privateKey.empty()) {
-		return " - '" + cryptaFilePath + "' - ключ абонента " + recipient + " не найден или испорчен!";
+		return " - '" + cryptaFilePath + "' - РєР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° " + recipient + " РЅРµ РЅР°Р№РґРµРЅ РёР»Рё РёСЃРїРѕСЂС‡РµРЅ!";
 	}
 
-    // Десериализация объекта Crypta из файла
+    // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ РѕР±СЉРµРєС‚Р° Crypta РёР· С„Р°Р№Р»Р°
     Crypta crypta = deserializeCryptaFromFile(cryptaFilePath);
 
-	// Расшифровка и сохранение сообщения
+	// Р Р°СЃС€РёС„СЂРѕРІРєР° Рё СЃРѕС…СЂР°РЅРµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ
 	return saveDecryptedMessageToDirectory(crypta, privateKey);
 }
 
@@ -35,16 +35,16 @@ void CryptaReceiver::setDefaultSaveDir(const std::string& _default_dir)
 	default_dir = _default_dir;
 }
 
-// Метод для загрузки закрытого ключа получателя
+// РњРµС‚РѕРґ РґР»СЏ Р·Р°РіСЂСѓР·РєРё Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° РїРѕР»СѓС‡Р°С‚РµР»СЏ
 std::string CryptaReceiver::loadPrivateKey(const std::string& recipient, const std::string& password) {
 
 	std::string pri_key_filename = getExecutablePath() + "/rsa_keys/" + recipient + "_prikey_encrypted.pem";
 
 	if (!std::filesystem::exists(pri_key_filename)) {
-		return {}; // Возвращаем пустую строку, если ключ не найден
+		return {}; // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ, РµСЃР»Рё РєР»СЋС‡ РЅРµ РЅР°Р№РґРµРЅ
 	}
 
-	// Загрузка и расшифровка закрытого ключа с использованием AES и пароля
+	// Р—Р°РіСЂСѓР·РєР° Рё СЂР°СЃС€РёС„СЂРѕРІРєР° Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј AES Рё РїР°СЂРѕР»СЏ
 
     std::ifstream pri_key_file(pri_key_filename, std::ios::binary);
     std::stringstream pri_key_stream;
@@ -58,26 +58,26 @@ std::string CryptaReceiver::loadPrivateKey(const std::string& recipient, const s
 	return decrypted_pri_key;
 }
 
-// Метод для десериализации объекта Crypta из файла
+// РњРµС‚РѕРґ РґР»СЏ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё РѕР±СЉРµРєС‚Р° Crypta РёР· С„Р°Р№Р»Р°
 Crypta CryptaReceiver::deserializeCryptaFromFile(const std::string& filePath) {
     return MessageCryptaSerializer::loadCryptaFromFile(filePath);
 }
 
-// Метод для расшифровки и сохранения сообщения
+// РњРµС‚РѕРґ РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІРєРё Рё СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ
 std::string CryptaReceiver::saveDecryptedMessageToDirectory(const Crypta& crypta, const std::string& privateKey) {
-    // Используем конструктор Message для расшифровки объекта Crypta с помощью закрытого ключа
+    // РСЃРїРѕР»СЊР·СѓРµРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Message РґР»СЏ СЂР°СЃС€РёС„СЂРѕРІРєРё РѕР±СЉРµРєС‚Р° Crypta СЃ РїРѕРјРѕС‰СЊСЋ Р·Р°РєСЂС‹С‚РѕРіРѕ РєР»СЋС‡Р°
     Message message(crypta, privateKey);
 
-    // Получаем уникальное имя директории
+    // РџРѕР»СѓС‡Р°РµРј СѓРЅРёРєР°Р»СЊРЅРѕРµ РёРјСЏ РґРёСЂРµРєС‚РѕСЂРёРё
 	std::string directory = getUniqueDirectoryName(crypta.from, default_dir);
 
-    // Создание директории
+    // РЎРѕР·РґР°РЅРёРµ РґРёСЂРµРєС‚РѕСЂРёРё
     std::filesystem::create_directory(directory);
 
-    // Сохранение текста и вложений
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ С‚РµРєСЃС‚Р° Рё РІР»РѕР¶РµРЅРёР№
     message.saveToDirectory(directory);
 
-	return "Криптограмма от абонента '" + crypta.from + "' расшифрована, содержимое в " + directory;
+	return "РљСЂРёРїС‚РѕРіСЂР°РјРјР° РѕС‚ Р°Р±РѕРЅРµРЅС‚Р° '" + crypta.from + "' СЂР°СЃС€РёС„СЂРѕРІР°РЅР°, СЃРѕРґРµСЂР¶РёРјРѕРµ РІ " + directory;
 }
 
 
@@ -90,7 +90,7 @@ std::string CryptaReceiver::getUniqueDirectoryName(const std::string& from, cons
     std::string directory = base_directory;
     int index = 1;
 
-    // Если директория с таким именем уже существует, добавляем индекс
+    // Р•СЃР»Рё РґРёСЂРµРєС‚РѕСЂРёСЏ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, РґРѕР±Р°РІР»СЏРµРј РёРЅРґРµРєСЃ
     while (std::filesystem::exists(directory)) {
         directory = base_directory + "_" + std::to_string(index++);
     }

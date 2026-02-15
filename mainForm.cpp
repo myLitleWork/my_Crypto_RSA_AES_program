@@ -1,4 +1,4 @@
-#include <vcl.h>
+п»ї#include <vcl.h>
 #pragma hdrstop
 #include <iostream>
 #include <iomanip>
@@ -24,9 +24,9 @@
 #include <atomic>
 #include <thread>
  #define strStd(s) String{s.c_str()}
-//----------------Глобальные атомарные переменные-------------------------
-std::atomic<int> progress(0);      // Прогресс выполнения
-std::atomic<bool> stopFlag(false); // Флаг остановки процесса
+//----------------Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ Р°С‚РѕРјР°СЂРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ-------------------------
+std::atomic<int> progress(0);      // РџСЂРѕРіСЂРµСЃСЃ РІС‹РїРѕР»РЅРµРЅРёСЏ
+std::atomic<bool> stopFlag(false); // Р¤Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё РїСЂРѕС†РµСЃСЃР°
 //------------------------------------------------------------------------
 #define stdStr(s) std::string{AnsiString{s}.c_str()}
 #define strStd(s) String{s.c_str()}
@@ -35,9 +35,9 @@ std::atomic<bool> stopFlag(false); // Флаг остановки процесса
 std::string extractNameBeforeUnderscore(const std::string& fileName) {
     size_t pos = fileName.find('_');
     if (pos != std::string::npos) {
-        return fileName.substr(0, pos);  // Извлекаем часть строки до символа "_"
+        return fileName.substr(0, pos);  // РР·РІР»РµРєР°РµРј С‡Р°СЃС‚СЊ СЃС‚СЂРѕРєРё РґРѕ СЃРёРјРІРѕР»Р° "_"
     }
-    return fileName;  // Если "_" не найден, возвращаем полное имя файла
+    return fileName;  // Р•СЃР»Рё "_" РЅРµ РЅР°Р№РґРµРЅ, РІРѕР·РІСЂР°С‰Р°РµРј РїРѕР»РЅРѕРµ РёРјСЏ С„Р°Р№Р»Р°
 }
 
 //-------------------------------------------------------------------------
@@ -54,11 +54,11 @@ std::string getExecutablePath() {
 std::pair<std::vector<std::string>, std::vector<std::string>> scanRSAKeysFolder(const std::string& folderPath) {
     std::vector<std::string> publicKeys;
     std::vector<std::string> privateKeys;
-    // Сканируем папку
+    // РЎРєР°РЅРёСЂСѓРµРј РїР°РїРєСѓ
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
 		if (std::filesystem::is_regular_file(entry)) {
             std::string filename = entry.path().filename().string();
-            // Проверяем, является ли файл открытым или закрытым ключом
+            // РџСЂРѕРІРµСЂСЏРµРј, СЏРІР»СЏРµС‚СЃСЏ Р»Рё С„Р°Р№Р» РѕС‚РєСЂС‹С‚С‹Рј РёР»Рё Р·Р°РєСЂС‹С‚С‹Рј РєР»СЋС‡РѕРј
             if (filename.find("pubkey.pem") != std::string::npos) {
                 publicKeys.push_back(filename);
             } else if (filename.find("prikey_encrypted.pem") != std::string::npos) {
@@ -66,7 +66,7 @@ std::pair<std::vector<std::string>, std::vector<std::string>> scanRSAKeysFolder(
             }
         }
     }
-    return {publicKeys, privateKeys}; // Возвращаем пару векторов
+    return {publicKeys, privateKeys}; // Р’РѕР·РІСЂР°С‰Р°РµРј РїР°СЂСѓ РІРµРєС‚РѕСЂРѕРІ
 }
 
 //-------------------------------------------------------------------------
@@ -77,7 +77,7 @@ std::string vectorByteToString(const std::vector<BYTE>& data) {
 
 //-------------------------------------------------------------------------
 
-// Функция преобразования std::string в std::vector<BYTE>
+// Р¤СѓРЅРєС†РёСЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ std::string РІ std::vector<BYTE>
 std::vector<BYTE> stringToVectorByte(const std::string& str) {
     return std::vector<BYTE>(str.begin(), str.end());
 }
@@ -142,7 +142,7 @@ char* loadKeyFromFile(const std::string& filename, size_t& key_len)
 }
 
 //-------------------------------------------------------------------------
-// Сохранение данных в файл
+// РЎРѕС…СЂР°РЅРµРЅРёРµ РґР°РЅРЅС‹С… РІ С„Р°Р№Р»
 void saveToFile(const char* data, size_t data_len, const std::string& filename) {
     std::ofstream file(filename, std::ios::binary);
     if (!file.is_open()) {
@@ -155,19 +155,19 @@ void saveToFile(const char* data, size_t data_len, const std::string& filename) 
 
 
 std::string readFileToString(const std::string& filename) {
-    std::ifstream file(filename); // Открываем файл для чтения
+    std::ifstream file(filename); // РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << filename << std::endl;
         return "";
     }
 
-    std::string content; // Создаем строку для хранения содержимого файла
+    std::string content; // РЎРѕР·РґР°РµРј СЃС‚СЂРѕРєСѓ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ С„Р°Р№Р»Р°
     std::string line;
-    while (std::getline(file, line)) { // Читаем файл построчно
-        content += line; // Добавляем строку к содержимому
+    while (std::getline(file, line)) { // Р§РёС‚Р°РµРј С„Р°Р№Р» РїРѕСЃС‚СЂРѕС‡РЅРѕ
+        content += line; // Р”РѕР±Р°РІР»СЏРµРј СЃС‚СЂРѕРєСѓ Рє СЃРѕРґРµСЂР¶РёРјРѕРјСѓ
     }
 
-    file.close(); // Закрываем файл
+    file.close(); // Р—Р°РєСЂС‹РІР°РµРј С„Р°Р№Р»
 
     return content;
 }
@@ -193,20 +193,20 @@ void __fastcall TformMain::btnAddCryptsClick(TObject *Sender)
 	TFileOpenDialog *dlg = new TFileOpenDialog(this);
 	dlg->DefaultFolder = GetCurrentDir();
 	lstCrypts->Items->Clear();
-	// Разрешаем множественный выбор файлов
+	// Р Р°Р·СЂРµС€Р°РµРј РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹Р№ РІС‹Р±РѕСЂ С„Р°Р№Р»РѕРІ
 	dlg->Options << fdoAllowMultiSelect;
-	// Устанавливаем фильтр файлов с расширением .cry
+	// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„РёР»СЊС‚СЂ С„Р°Р№Р»РѕРІ СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .cry
 	dlg->FileTypes->Add()->DisplayName = "Crypta Files (*.cry2)";
 	dlg->FileTypes->Items[0]->FileMask = "*.cry2";
-	// Показываем диалоговое окно
+	// РџРѕРєР°Р·С‹РІР°РµРј РґРёР°Р»РѕРіРѕРІРѕРµ РѕРєРЅРѕ
 	if (dlg->Execute()) {
-		// Очищаем ListBox перед добавлением новых файлов
-		// Проходим по каждому выбранному файлу и добавляем его в ListBox
+		// РћС‡РёС‰Р°РµРј ListBox РїРµСЂРµРґ РґРѕР±Р°РІР»РµРЅРёРµРј РЅРѕРІС‹С… С„Р°Р№Р»РѕРІ
+		// РџСЂРѕС…РѕРґРёРј РїРѕ РєР°Р¶РґРѕРјСѓ РІС‹Р±СЂР°РЅРЅРѕРјСѓ С„Р°Р№Р»Сѓ Рё РґРѕР±Р°РІР»СЏРµРј РµРіРѕ РІ ListBox
 		for (int i = 0; i < dlg->Files->Count; i++) {
 			lstCrypts->Items->Add(dlg->Files->Strings[i]);
 		}
 	}
-	// Удаляем диалог
+	// РЈРґР°Р»СЏРµРј РґРёР°Р»РѕРі
 	delete dlg;
 }
 
@@ -217,18 +217,18 @@ void __fastcall TformMain::btnAddAtachmentsClick(TObject *Sender)
 	TFileOpenDialog *dlg = new TFileOpenDialog(this);
 
 	lstAttach->Items->Clear();
-	// Разрешаем множественный выбор файлов
+	// Р Р°Р·СЂРµС€Р°РµРј РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹Р№ РІС‹Р±РѕСЂ С„Р°Р№Р»РѕРІ
 	dlg->Options << fdoAllowMultiSelect;
-	// Показываем диалоговое окно
+	// РџРѕРєР°Р·С‹РІР°РµРј РґРёР°Р»РѕРіРѕРІРѕРµ РѕРєРЅРѕ
 	if (dlg->Execute()) {
-		// Очищаем ListBox перед добавлением новых файлов
+		// РћС‡РёС‰Р°РµРј ListBox РїРµСЂРµРґ РґРѕР±Р°РІР»РµРЅРёРµРј РЅРѕРІС‹С… С„Р°Р№Р»РѕРІ
 
-		// Проходим по каждому выбранному файлу и добавляем его в ListBox
+		// РџСЂРѕС…РѕРґРёРј РїРѕ РєР°Р¶РґРѕРјСѓ РІС‹Р±СЂР°РЅРЅРѕРјСѓ С„Р°Р№Р»Сѓ Рё РґРѕР±Р°РІР»СЏРµРј РµРіРѕ РІ ListBox
 		for (int i = 0; i < dlg->Files->Count; i++) {
 			lstAttach->Items->Add(dlg->Files->Strings[i]);
 		}
 	}
-	// Удаляем диалог
+	// РЈРґР°Р»СЏРµРј РґРёР°Р»РѕРі
 	delete dlg;
 
 	UpdateLabelWithFileInfo();
@@ -241,10 +241,10 @@ void __fastcall TformMain::btnEncryptClick(TObject *Sender)
 {
 	LockFormExceptStopButton(this);
 	if (!isProcessing) {
-		// Режим запуска процесса
+		// Р РµР¶РёРј Р·Р°РїСѓСЃРєР° РїСЂРѕС†РµСЃСЃР°
 		if (edtDirCrypts->Text.IsEmpty()) {
 			String Dir = edtDirCrypts->Text;
-			SelectDirectory("Выберите папку для сохранения криптограмм", "пк", Dir, TSelectDirExtOpts(), 0);
+			SelectDirectory("Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РєСЂРёРїС‚РѕРіСЂР°РјРј", "РїРє", Dir, TSelectDirExtOpts(), 0);
 			edtDirCrypts->Text = Dir;
 		}
 
@@ -260,19 +260,19 @@ void __fastcall TformMain::btnEncryptClick(TObject *Sender)
 
 		memStatus->Lines->Clear();
 
-		// Сбрасываем прогресс и флаг остановки
+		// РЎР±СЂР°СЃС‹РІР°РµРј РїСЂРѕРіСЂРµСЃСЃ Рё С„Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё
 		progress.store(0);
 		stopFlag.store(false);
 
 		try {
-			// Меняем текст кнопки на "Остановить"
-			btnEncrypt->Caption = "Остановить";
-			isProcessing = true;  // Устанавливаем флаг, что процесс запущен
+			// РњРµРЅСЏРµРј С‚РµРєСЃС‚ РєРЅРѕРїРєРё РЅР° "РћСЃС‚Р°РЅРѕРІРёС‚СЊ"
+			btnEncrypt->Caption = "РћСЃС‚Р°РЅРѕРІРёС‚СЊ";
+			isProcessing = true;  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р»Р°Рі, С‡С‚Рѕ РїСЂРѕС†РµСЃСЃ Р·Р°РїСѓС‰РµРЅ
 
-			// Запускаем процесс в отдельном потоке
+			// Р—Р°РїСѓСЃРєР°РµРј РїСЂРѕС†РµСЃСЃ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 			std::thread encryptThread([=]() {
 				try {
-					// Проходим по элементам CheckListBox и шифруем сообщение для каждого выбранного получателя
+					// РџСЂРѕС…РѕРґРёРј РїРѕ СЌР»РµРјРµРЅС‚Р°Рј CheckListBox Рё С€РёС„СЂСѓРµРј СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ РєР°Р¶РґРѕРіРѕ РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїРѕР»СѓС‡Р°С‚РµР»СЏ
 					for (int i = 0; i < chkListAbonents->Count; ++i) {
 						if (!chkListAbonents->Checked[i])
 							continue;
@@ -282,72 +282,72 @@ void __fastcall TformMain::btnEncryptClick(TObject *Sender)
 
 						TThread::Synchronize(nullptr, [=]() {
 							Gauge1->Progress = 0;
-							memStatus->Lines->Add(" - Зашифрование сообщения для абонента '" + chkListAbonents->Items->Strings[i] + "' ...");
+							memStatus->Lines->Add(" - Р—Р°С€РёС„СЂРѕРІР°РЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ РґР»СЏ Р°Р±РѕРЅРµРЅС‚Р° '" + chkListAbonents->Items->Strings[i] + "' ...");
 						});
 
 
 
-						// Создаем архив
+						// РЎРѕР·РґР°РµРј Р°СЂС…РёРІ
 						auto result_str = mapCryptoArchiveCreators.at(recipient).createArchive(filePaths, textHeader);
 
-                        // Проверка на остановку
+                        // РџСЂРѕРІРµСЂРєР° РЅР° РѕСЃС‚Р°РЅРѕРІРєСѓ
 						if (stopFlag.load()) {
 							TThread::Synchronize(nullptr, [=]() {
-								memStatus->Lines->Add("Процесс шифрования был остановлен.");
+								memStatus->Lines->Add("РџСЂРѕС†РµСЃСЃ С€РёС„СЂРѕРІР°РЅРёСЏ Р±С‹Р» РѕСЃС‚Р°РЅРѕРІР»РµРЅ.");
 								UnlockForm(this);
 							});
-							return;  // Прерываем выполнение
+							return;  // РџСЂРµСЂС‹РІР°РµРј РІС‹РїРѕР»РЅРµРЅРёРµ
 						}
 
-						// Обновляем статус
+						// РћР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚СѓСЃ
 						TThread::Synchronize(nullptr, [=]() {
-							memStatus->Lines->Add(" - Успешно - " + strStd(result_str));
+							memStatus->Lines->Add(" - РЈСЃРїРµС€РЅРѕ - " + strStd(result_str));
 							progress.store(0);
 							Gauge1->Progress = 100;
 
 						});
 					}
 
-					// По завершению шифрования меняем текст кнопки обратно на "Зашифровать"
+					// РџРѕ Р·Р°РІРµСЂС€РµРЅРёСЋ С€РёС„СЂРѕРІР°РЅРёСЏ РјРµРЅСЏРµРј С‚РµРєСЃС‚ РєРЅРѕРїРєРё РѕР±СЂР°С‚РЅРѕ РЅР° "Р—Р°С€РёС„СЂРѕРІР°С‚СЊ"
 					TThread::Synchronize(nullptr, [=]() {
-						btnEncrypt->Caption = "Зашифровать";
-						isProcessing = false;  // Сбрасываем флаг
-						Timer1->Enabled = false;  // Останавливаем таймер
+						btnEncrypt->Caption = "Р—Р°С€РёС„СЂРѕРІР°С‚СЊ";
+						isProcessing = false;  // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі
+						Timer1->Enabled = false;  // РћСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚Р°Р№РјРµСЂ
 
 					});
 
 				} catch (const std::exception& e) {
 					TThread::Synchronize(nullptr, [=]() {
 						MessageDlg(strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
-						btnEncrypt->Caption = "Зашифровать";  // Возвращаем текст кнопки
-						isProcessing = false;  // Сбрасываем флаг
-						Timer1->Enabled = false;  // Останавливаем таймер
+						btnEncrypt->Caption = "Р—Р°С€РёС„СЂРѕРІР°С‚СЊ";  // Р’РѕР·РІСЂР°С‰Р°РµРј С‚РµРєСЃС‚ РєРЅРѕРїРєРё
+						isProcessing = false;  // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі
+						Timer1->Enabled = false;  // РћСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚Р°Р№РјРµСЂ
 						UnlockForm(this);
 					});
 				}
 				UnlockForm(this);
 			});
 
-			encryptThread.detach();  // Отсоединяем поток, чтобы он работал параллельно
-			Timer1->Enabled = true;  // Включаем таймер для обновления прогресса
+			encryptThread.detach();  // РћС‚СЃРѕРµРґРёРЅСЏРµРј РїРѕС‚РѕРє, С‡С‚РѕР±С‹ РѕРЅ СЂР°Р±РѕС‚Р°Р» РїР°СЂР°Р»Р»РµР»СЊРЅРѕ
+			Timer1->Enabled = true;  // Р’РєР»СЋС‡Р°РµРј С‚Р°Р№РјРµСЂ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕРіСЂРµСЃСЃР°
 
 		} catch (const std::exception &e) {
 			MessageDlg(strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
 			UnlockForm(this);
 		}
 	} else {
-		// Режим остановки процесса
+		// Р РµР¶РёРј РѕСЃС‚Р°РЅРѕРІРєРё РїСЂРѕС†РµСЃСЃР°
 		try {
-			stopFlag.store(true);  // Устанавливаем флаг остановки
+			stopFlag.store(true);  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё
 			TThread::Synchronize(nullptr, [=]() {
-				memStatus->Lines->Add("Остановка процесса шифрования...");
-				btnEncrypt->Caption = "Зашифровать";
+				memStatus->Lines->Add("РћСЃС‚Р°РЅРѕРІРєР° РїСЂРѕС†РµСЃСЃР° С€РёС„СЂРѕРІР°РЅРёСЏ...");
+				btnEncrypt->Caption = "Р—Р°С€РёС„СЂРѕРІР°С‚СЊ";
 				isProcessing = false;
 				Timer1->Enabled = false;
 				UnlockForm(this);
 			});
 		} catch (const std::exception& e) {
-			MessageDlg("Ошибка при остановке процесса: " + strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
+			MessageDlg("РћС€РёР±РєР° РїСЂРё РѕСЃС‚Р°РЅРѕРІРєРµ РїСЂРѕС†РµСЃСЃР°: " + strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
             UnlockForm(this);
 		}
 	}
@@ -363,11 +363,11 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 
 	LockFormExceptStopButton(this);
 	if (!isProcessing) {
-        // Режим запуска процесса
+        // Р РµР¶РёРј Р·Р°РїСѓСЃРєР° РїСЂРѕС†РµСЃСЃР°
         if (edtSaveMessageDir->Text.IsEmpty()) {
             String Dir = "";
             Dir = edtSaveMessageDir->Text;
-            SelectDirectory("Выберите папку для сохранения сообщений", "пк", Dir, TSelectDirExtOpts(), 0);
+            SelectDirectory("Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№", "РїРє", Dir, TSelectDirExtOpts(), 0);
             edtSaveMessageDir->Text = Dir;
         }
 
@@ -383,24 +383,24 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 
         memStatus->Lines->Clear();
 
-        // Сбрасываем прогресс и флаг остановки
+        // РЎР±СЂР°СЃС‹РІР°РµРј РїСЂРѕРіСЂРµСЃСЃ Рё С„Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё
         progress.store(0);
         stopFlag.store(false);
 
-        // Меняем текст кнопки на "Остановить"
-        btnDecrypt->Caption = "Остановить";
-        isProcessing = true;  // Устанавливаем флаг, что процесс запущен
+        // РњРµРЅСЏРµРј С‚РµРєСЃС‚ РєРЅРѕРїРєРё РЅР° "РћСЃС‚Р°РЅРѕРІРёС‚СЊ"
+        btnDecrypt->Caption = "РћСЃС‚Р°РЅРѕРІРёС‚СЊ";
+        isProcessing = true;  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р»Р°Рі, С‡С‚Рѕ РїСЂРѕС†РµСЃСЃ Р·Р°РїСѓС‰РµРЅ
 
-        // Запускаем процесс в отдельном потоке
+        // Р—Р°РїСѓСЃРєР°РµРј РїСЂРѕС†РµСЃСЃ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 		std::thread decryptThread([=]() {
             try {
                 CryptoArchiveReader cryptoArchiveReader{username, password, &stopFlag, &progress};
 
-                // Проходим по элементам списка криптограмм и расшифровываем каждую
+                // РџСЂРѕС…РѕРґРёРј РїРѕ СЌР»РµРјРµРЅС‚Р°Рј СЃРїРёСЃРєР° РєСЂРёРїС‚РѕРіСЂР°РјРј Рё СЂР°СЃС€РёС„СЂРѕРІС‹РІР°РµРј РєР°Р¶РґСѓСЋ
 				for (int i = 0; i < lstCrypts->Count; i++) {
                     if (stopFlag.load()) {
                         TThread::Synchronize(nullptr, [=]() {
-							memStatus->Lines->Add("Процесс расшифрования был остановлен.");
+							memStatus->Lines->Add("РџСЂРѕС†РµСЃСЃ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ Р±С‹Р» РѕСЃС‚Р°РЅРѕРІР»РµРЅ.");
 							UnlockForm(this);
                         });
 						return;
@@ -408,56 +408,56 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 
                     std::string filePath;
                     try {
-                        // Получаем путь к файлу из элемента ListBox
+                        // РџРѕР»СѓС‡Р°РµРј РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ РёР· СЌР»РµРјРµРЅС‚Р° ListBox
                         filePath = stdStr(lstCrypts->Items->Strings[i]);
 
                         TThread::Synchronize(nullptr, [=]() {
-                            Gauge1->Progress = 0;  // Обнуляем прогресс
-                            memStatus->Lines->Add("Расшифрование файла: " + lstCrypts->Items->Strings[i]);
+                            Gauge1->Progress = 0;  // РћР±РЅСѓР»СЏРµРј РїСЂРѕРіСЂРµСЃСЃ
+                            memStatus->Lines->Add("Р Р°СЃС€РёС„СЂРѕРІР°РЅРёРµ С„Р°Р№Р»Р°: " + lstCrypts->Items->Strings[i]);
                         });
 
                         std::string result = cryptoArchiveReader.decryptArchive(filePath);
 
                         TThread::Synchronize(nullptr, [=]() {
                             memStatus->Lines->Add(strStd(result));
-                            progress.store(0);  // Сбрасываем прогресс
+                            progress.store(0);  // РЎР±СЂР°СЃС‹РІР°РµРј РїСЂРѕРіСЂРµСЃСЃ
 							Gauge1->Progress = 100;
                         });
                     } catch (const std::exception& e) {
                         TThread::Synchronize(nullptr, [=]() {
-							memStatus->Lines->Add((filePath + " - ошибка расшифрования!").c_str());
+							memStatus->Lines->Add((filePath + " - РѕС€РёР±РєР° СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ!").c_str());
 						});
 					}
 
 				}
 
-                // По завершению расшифрования меняем текст кнопки обратно на "Расшифровать"
+                // РџРѕ Р·Р°РІРµСЂС€РµРЅРёСЋ СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ РјРµРЅСЏРµРј С‚РµРєСЃС‚ РєРЅРѕРїРєРё РѕР±СЂР°С‚РЅРѕ РЅР° "Р Р°СЃС€РёС„СЂРѕРІР°С‚СЊ"
                 TThread::Synchronize(nullptr, [=]() {
-                    btnDecrypt->Caption = "Расшифровать";
-                    isProcessing = false;  // Сбрасываем флаг
-					Timer1->Enabled = false;  // Останавливаем таймер
+                    btnDecrypt->Caption = "Р Р°СЃС€РёС„СЂРѕРІР°С‚СЊ";
+                    isProcessing = false;  // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі
+					Timer1->Enabled = false;  // РћСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚Р°Р№РјРµСЂ
 					UnlockForm(this);
 				});
             } catch (const std::exception& e) {
                 TThread::Synchronize(nullptr, [=]() {
                     MessageDlg(strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
-                    btnDecrypt->Caption = "Расшифровать";  // Возвращаем текст кнопки
-                    isProcessing = false;  // Сбрасываем флаг
-					Timer1->Enabled = false;  // Останавливаем таймер
+                    btnDecrypt->Caption = "Р Р°СЃС€РёС„СЂРѕРІР°С‚СЊ";  // Р’РѕР·РІСЂР°С‰Р°РµРј С‚РµРєСЃС‚ РєРЅРѕРїРєРё
+                    isProcessing = false;  // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі
+					Timer1->Enabled = false;  // РћСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚Р°Р№РјРµСЂ
 					UnlockForm(this);
                 });
             }
         });
 
-        decryptThread.detach();  // Отсоединяем поток, чтобы он работал параллельно
-        Timer1->Enabled = true;  // Включаем таймер для обновления прогресса
+        decryptThread.detach();  // РћС‚СЃРѕРµРґРёРЅСЏРµРј РїРѕС‚РѕРє, С‡С‚РѕР±С‹ РѕРЅ СЂР°Р±РѕС‚Р°Р» РїР°СЂР°Р»Р»РµР»СЊРЅРѕ
+        Timer1->Enabled = true;  // Р’РєР»СЋС‡Р°РµРј С‚Р°Р№РјРµСЂ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕРіСЂРµСЃСЃР°
 
     } else {
-        // Режим остановки процесса
-        stopFlag.store(true);  // Устанавливаем флаг остановки
+        // Р РµР¶РёРј РѕСЃС‚Р°РЅРѕРІРєРё РїСЂРѕС†РµСЃСЃР°
+        stopFlag.store(true);  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё
         TThread::Synchronize(nullptr, [=]() {
-            memStatus->Lines->Add("Остановка процесса расшифрования...");
-            btnDecrypt->Caption = "Расшифровать";
+            memStatus->Lines->Add("РћСЃС‚Р°РЅРѕРІРєР° РїСЂРѕС†РµСЃСЃР° СЂР°СЃС€РёС„СЂРѕРІР°РЅРёСЏ...");
+            btnDecrypt->Caption = "Р Р°СЃС€РёС„СЂРѕРІР°С‚СЊ";
             isProcessing = false;
 			Timer1->Enabled = false;
 			UnlockForm(this);
@@ -482,7 +482,7 @@ void __fastcall TformMain::Button5Click(TObject *Sender)
 
 bool isPasswordStrong(const std::string& password, std::string& message) {
     if (password.size() < 8) {
-        message = "Пароль должен содержать минимум 8 символов.";
+        message = "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РјРёРЅРёРјСѓРј 8 СЃРёРјРІРѕР»РѕРІ.";
         return false;
     }
     bool hasLower = false, hasUpper = false, hasDigit = false, hasSpecial = false;
@@ -492,10 +492,10 @@ bool isPasswordStrong(const std::string& password, std::string& message) {
         else if (std::isdigit(ch)) hasDigit = true;
         else if (std::ispunct(ch)) hasSpecial = true;
     }
-    if (!hasLower) message = "Пароль должен содержать минимум одну строчную букву.";
-    else if (!hasUpper) message = "Пароль должен содержать минимум одну заглавную букву.";
-    else if (!hasDigit) message = "Пароль должен содержать минимум одну цифру.";
-    else if (!hasSpecial) message = "Пароль должен содержать минимум один специальный символ.";
+    if (!hasLower) message = "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РјРёРЅРёРјСѓРј РѕРґРЅСѓ СЃС‚СЂРѕС‡РЅСѓСЋ Р±СѓРєРІСѓ.";
+    else if (!hasUpper) message = "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РјРёРЅРёРјСѓРј РѕРґРЅСѓ Р·Р°РіР»Р°РІРЅСѓСЋ Р±СѓРєРІСѓ.";
+    else if (!hasDigit) message = "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РјРёРЅРёРјСѓРј РѕРґРЅСѓ С†РёС„СЂСѓ.";
+    else if (!hasSpecial) message = "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РјРёРЅРёРјСѓРј РѕРґРёРЅ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СЃРёРјРІРѕР».";
     return hasLower && hasUpper && hasDigit && hasSpecial;
 }
 
@@ -505,37 +505,37 @@ void __fastcall TformMain::btnGenerateRsaKeysClick(TObject *Sender)
 	std::string password = stdStr(EditPassword->Text);
 
 	if (username.empty() || password.empty()) {
-		ShowMessage("Имя пользователя или пароль не могут быть пустыми!");
+		ShowMessage("РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё РїР°СЂРѕР»СЊ РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹РјРё!");
 		return;
 	}
 
     std::string message;
     if (!isPasswordStrong(password, message)) {
-        ShowMessage("Пароль не соответствует требованиям безопасности:\n" + strStd(message) +
-                    "\nТребования:\n- Минимум 8 символов\n- Строчные и заглавные буквы\n- Минимум одна цифра\n- Минимум один специальный символ");
+        ShowMessage("РџР°СЂРѕР»СЊ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚СЂРµР±РѕРІР°РЅРёСЏРј Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё:\n" + strStd(message) +
+                    "\nРўСЂРµР±РѕРІР°РЅРёСЏ:\n- РњРёРЅРёРјСѓРј 8 СЃРёРјРІРѕР»РѕРІ\n- РЎС‚СЂРѕС‡РЅС‹Рµ Рё Р·Р°РіР»Р°РІРЅС‹Рµ Р±СѓРєРІС‹\n- РњРёРЅРёРјСѓРј РѕРґРЅР° С†РёС„СЂР°\n- РњРёРЅРёРјСѓРј РѕРґРёРЅ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СЃРёРјРІРѕР»");
         return;
 	}
 
-	// Проверка, существуют ли уже ключи для данного пользователя
+	// РџСЂРѕРІРµСЂРєР°, СЃСѓС‰РµСЃС‚РІСѓСЋС‚ Р»Рё СѓР¶Рµ РєР»СЋС‡Рё РґР»СЏ РґР°РЅРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 	std::string rsaKeysFolder = getExecutablePath() + "\\rsa_keys";
 	std::string privateKeyPath = rsaKeysFolder + "\\" + username + "_prikey_encrypted.pem";
 	std::string publicKeyPath = rsaKeysFolder + "\\" + username + "_pubkey.pem";
 
-	// Проверка наличия старых ключей
+	// РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ СЃС‚Р°СЂС‹С… РєР»СЋС‡РµР№
 	bool keysExist = std::filesystem::exists(privateKeyPath) || std::filesystem::exists(publicKeyPath);
 
 	if (keysExist) {
-		// Выводим предупреждение о том, что старые ключи будут удалены
-		int result = MessageDlg("RSA ключи для этого пользователя уже существуют. Продолжение удалит старые ключи. Вы уверены, что хотите продолжить?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
+		// Р’С‹РІРѕРґРёРј РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Рѕ С‚РѕРј, С‡С‚Рѕ СЃС‚Р°СЂС‹Рµ РєР»СЋС‡Рё Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹
+		int result = MessageDlg("RSA РєР»СЋС‡Рё РґР»СЏ СЌС‚РѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‚. РџСЂРѕРґРѕР»Р¶РµРЅРёРµ СѓРґР°Р»РёС‚ СЃС‚Р°СЂС‹Рµ РєР»СЋС‡Рё. Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
 
-		// Если пользователь нажал "No", выходим из функции
+		// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» "No", РІС‹С…РѕРґРёРј РёР· С„СѓРЅРєС†РёРё
 		if (result != mrYes) {
 			return;
 		}
 
-		result = MessageDlg("Расшифровать ранее полученные криптограммы будет невозможно. Вы уверены, что хотите продолжить?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
+		result = MessageDlg("Р Р°СЃС€РёС„СЂРѕРІР°С‚СЊ СЂР°РЅРµРµ РїРѕР»СѓС‡РµРЅРЅС‹Рµ РєСЂРёРїС‚РѕРіСЂР°РјРјС‹ Р±СѓРґРµС‚ РЅРµРІРѕР·РјРѕР¶РЅРѕ. Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
 
-		// Если пользователь нажал "No", выходим из функции
+		// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» "No", РІС‹С…РѕРґРёРј РёР· С„СѓРЅРєС†РёРё
 		if (result != mrYes) {
 			return;
 		}
@@ -546,7 +546,7 @@ void __fastcall TformMain::btnGenerateRsaKeysClick(TObject *Sender)
 
 		KeyGenerator generator;
 		generator.GenerateKeys(username, password);
-		ShowMessage("RSA ключи успешно сгенерированы и сохранены!");
+		ShowMessage("RSA РєР»СЋС‡Рё СѓСЃРїРµС€РЅРѕ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅС‹ Рё СЃРѕС…СЂР°РЅРµРЅС‹!");
 		EditPassword->Clear();
 
 		if(keysExist)
@@ -563,7 +563,7 @@ void __fastcall TformMain::btnGenerateRsaKeysClick(TObject *Sender)
 		ShowMessage(e.what());
 	}
 
-	lbAuto->Caption = "Нет авторизации!";
+	lbAuto->Caption = "РќРµС‚ Р°РІС‚РѕСЂРёР·Р°С†РёРё!";
 }
 
 //---------------------------------------------------------------------------
@@ -574,17 +574,17 @@ void __fastcall TformMain::btnSaveOpenRsaKeyClick(TObject *Sender)
 	std::string pub_key_filename = std::string(getExecutablePath()) + "/rsa_keys/" +  stdStr(EditUserName->Text) + "_pubkey.pem";
 
 	if (!std::filesystem::exists(pub_key_filename)) {
-        ShowMessage("Ключ не найден!");
-        return; // Возвращаем пустую строку, если ключ не найден
+        ShowMessage("РљР»СЋС‡ РЅРµ РЅР°Р№РґРµРЅ!");
+        return; // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ, РµСЃР»Рё РєР»СЋС‡ РЅРµ РЅР°Р№РґРµРЅ
 	}
     String Dir;
-    if (SelectDirectory("Выберите папку для сохранения файлов", "пк", Dir, TSelectDirExtOpts(), 0)) {
+    if (SelectDirectory("Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ С„Р°Р№Р»РѕРІ", "РїРє", Dir, TSelectDirExtOpts(), 0)) {
 		std::string destination_path = stdStr(Dir) + "/" + std::filesystem::path(pub_key_filename).filename().string();
 		try {
 			std::filesystem::copy(pub_key_filename, destination_path, std::filesystem::copy_options::overwrite_existing);
-			ShowMessage("Файл '"+ EditUserName->Text +"_pubkey.pem' успешно скопирован в: " + Dir);
+			ShowMessage("Р¤Р°Р№Р» '"+ EditUserName->Text +"_pubkey.pem' СѓСЃРїРµС€РЅРѕ СЃРєРѕРїРёСЂРѕРІР°РЅ РІ: " + Dir);
 		} catch (const std::filesystem::filesystem_error& e) {
-			ShowMessage("Ошибка при копировании файла: " + AnsiString(e.what()));
+			ShowMessage("РћС€РёР±РєР° РїСЂРё РєРѕРїРёСЂРѕРІР°РЅРёРё С„Р°Р№Р»Р°: " + AnsiString(e.what()));
 		}
 	}
 
@@ -598,16 +598,16 @@ void __fastcall TformMain::FormShow(TObject *Sender)
     EditUserName->SetFocus();
     std::string exePath = getExecutablePath();
 
-	// Добавляем поддиректорию для папки ключей (если они находятся в подпапке)
-	std::string rsaKeysFolder = exePath + "\\rsa_keys";  // Папка с ключами
-	// Сканируем папку и получаем пары файлов открытых и закрытых ключей
+	// Р”РѕР±Р°РІР»СЏРµРј РїРѕРґРґРёСЂРµРєС‚РѕСЂРёСЋ РґР»СЏ РїР°РїРєРё РєР»СЋС‡РµР№ (РµСЃР»Рё РѕРЅРё РЅР°С…РѕРґСЏС‚СЃСЏ РІ РїРѕРґРїР°РїРєРµ)
+	std::string rsaKeysFolder = exePath + "\\rsa_keys";  // РџР°РїРєР° СЃ РєР»СЋС‡Р°РјРё
+	// РЎРєР°РЅРёСЂСѓРµРј РїР°РїРєСѓ Рё РїРѕР»СѓС‡Р°РµРј РїР°СЂС‹ С„Р°Р№Р»РѕРІ РѕС‚РєСЂС‹С‚С‹С… Рё Р·Р°РєСЂС‹С‚С‹С… РєР»СЋС‡РµР№
     std::pair<std::vector<std::string>, std::vector<std::string>> keys = scanRSAKeysFolder(rsaKeysFolder);
 	for (const auto& pubKey : keys.first) {
 		std::string displayName = extractNameBeforeUnderscore(pubKey);
 		chkListAbonents->Items->Add(displayName.c_str());
 		mapCryptoArchiveCreators.insert({displayName, CryptoArchiveCreator{displayName, &stopFlag, &progress}});
 	}
-	// Добавляем найденные приватные ключи в список, обрезая имена до символа "_"
+	// Р”РѕР±Р°РІР»СЏРµРј РЅР°Р№РґРµРЅРЅС‹Рµ РїСЂРёРІР°С‚РЅС‹Рµ РєР»СЋС‡Рё РІ СЃРїРёСЃРѕРє, РѕР±СЂРµР·Р°СЏ РёРјРµРЅР° РґРѕ СЃРёРјРІРѕР»Р° "_"
     for (const auto& priKey : keys.second) {
         std::string displayName = extractNameBeforeUnderscore(priKey);
         lstOperators->Items->Add(displayName.c_str());
@@ -629,7 +629,7 @@ void __fastcall TformMain::N1Click(TObject *Sender)
 	lstCrypts->Items->Clear();
 	lstAttach->Items->Clear();
 
-	lbAttachInfo->Caption = "Файлов приложений - 0";
+	lbAttachInfo->Caption = "Р¤Р°Р№Р»РѕРІ РїСЂРёР»РѕР¶РµРЅРёР№ - 0";
 }
 //---------------------------------------------------------------------------
 
@@ -661,17 +661,17 @@ void __fastcall TformMain::Timer2Timer(TObject *Sender)
 		std::string decrypted_pri_key = KeyGenerator::DecryptPrivateKey(username, password);
 
 		if (decrypted_pri_key.find("PRIVATE") != std::string::npos) {
-			// Успех: показываем окно с информационным стилем
-			auto text = "Авторизован как оператор: \"" + String{username.c_str()} + "\"";
+			// РЈСЃРїРµС…: РїРѕРєР°Р·С‹РІР°РµРј РѕРєРЅРѕ СЃ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹Рј СЃС‚РёР»РµРј
+			auto text = "РђРІС‚РѕСЂРёР·РѕРІР°РЅ РєР°Рє РѕРїРµСЂР°С‚РѕСЂ: \"" + String{username.c_str()} + "\"";
 			setAutorizationStatus(text,true);
 
 		} else {
 			 // No
-			 setAutorizationStatus("Нет авторизации!",false);
+			 setAutorizationStatus("РќРµС‚ Р°РІС‚РѕСЂРёР·Р°С†РёРё!",false);
 		}
 	} catch (const std::exception& e) {
 
-		setAutorizationStatus("Нет авторизации!",false);
+		setAutorizationStatus("РќРµС‚ Р°РІС‚РѕСЂРёР·Р°С†РёРё!",false);
 	}
 }
 
@@ -682,36 +682,36 @@ void TformMain::UpdateLabelWithFileInfo() {
 	auto label = lbAttachInfo;
 	auto listBox = lstAttach;
 
-	int fileCount = listBox->Items->Count; // Количество файлов
-    __int64 totalSize = 0; // Общий размер файлов в байтах
+	int fileCount = listBox->Items->Count; // РљРѕР»РёС‡РµСЃС‚РІРѕ С„Р°Р№Р»РѕРІ
+    __int64 totalSize = 0; // РћР±С‰РёР№ СЂР°Р·РјРµСЂ С„Р°Р№Р»РѕРІ РІ Р±Р°Р№С‚Р°С…
 
-    // Проходим по каждому файлу в ListBox
+    // РџСЂРѕС…РѕРґРёРј РїРѕ РєР°Р¶РґРѕРјСѓ С„Р°Р№Р»Сѓ РІ ListBox
     for (int i = 0; i < listBox->Items->Count; i++) {
         String fileName = listBox->Items->Strings[i];
         WIN32_FILE_ATTRIBUTE_DATA fileInfo;
 
-        // Получаем информацию о файле
+        // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С„Р°Р№Р»Рµ
         if (GetFileAttributesExW(fileName.c_str(), GetFileExInfoStandard, &fileInfo)) {
             __int64 fileSize = (__int64(fileInfo.nFileSizeHigh) << 32) + fileInfo.nFileSizeLow;
             totalSize += fileSize;
         }
     }
 
-    // Определяем единицу измерения и форматируем объем
+    // РћРїСЂРµРґРµР»СЏРµРј РµРґРёРЅРёС†Сѓ РёР·РјРµСЂРµРЅРёСЏ Рё С„РѕСЂРјР°С‚РёСЂСѓРµРј РѕР±СЉРµРј
     String sizeStr;
     if (totalSize < 1024) {
-        sizeStr = IntToStr(totalSize) + " байт";
+        sizeStr = IntToStr(totalSize) + " Р±Р°Р№С‚";
     } else if (totalSize < 1024 * 1024) {
-        sizeStr = FormatFloat("#0.0", totalSize / 1024.0) + " КБ";
+        sizeStr = FormatFloat("#0.0", totalSize / 1024.0) + " РљР‘";
     } else {
-        sizeStr = FormatFloat("#0.0", totalSize / (1024.0 * 1024.0)) + " МБ";
+        sizeStr = FormatFloat("#0.0", totalSize / (1024.0 * 1024.0)) + " РњР‘";
     }
 
-    // Обновляем текст лейбла на русском языке
-    label->Caption = "Файлов приложений - " + IntToStr(fileCount) + ", общий объем: " + sizeStr;
+    // РћР±РЅРѕРІР»СЏРµРј С‚РµРєСЃС‚ Р»РµР№Р±Р»Р° РЅР° СЂСѓСЃСЃРєРѕРј СЏР·С‹РєРµ
+    label->Caption = "Р¤Р°Р№Р»РѕРІ РїСЂРёР»РѕР¶РµРЅРёР№ - " + IntToStr(fileCount) + ", РѕР±С‰РёР№ РѕР±СЉРµРј: " + sizeStr;
 
-    // Меняем цвет лейбла в зависимости от общего объема
-    if (totalSize > 250 * 1024 * 1024) { // Больше 250 МБ
+    // РњРµРЅСЏРµРј С†РІРµС‚ Р»РµР№Р±Р»Р° РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РѕР±С‰РµРіРѕ РѕР±СЉРµРјР°
+    if (totalSize > 250 * 1024 * 1024) { // Р‘РѕР»СЊС€Рµ 250 РњР‘
 		label->Font->Color = clRed;
     } else {
 		label->Font->Color = clGreen;
@@ -731,7 +731,7 @@ void __fastcall TformMain::edtDirCryptsDblClick(TObject *Sender)
 {
 
 	String Dir = edtDirCrypts->Text;
-	SelectDirectory("Выберите папку для сохранения криптограмм", "пк", Dir, TSelectDirExtOpts(),0);
+	SelectDirectory("Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РєСЂРёРїС‚РѕРіСЂР°РјРј", "РїРє", Dir, TSelectDirExtOpts(),0);
 	edtDirCrypts->Text = Dir;
 
 }
@@ -742,7 +742,7 @@ void __fastcall TformMain::edtSaveMessageDirDblClick(TObject *Sender)
 {
 
 	String Dir = edtSaveMessageDir->Text;
-	SelectDirectory("Выберите папку для сохранения сообщений", "пк", Dir, TSelectDirExtOpts(), 0);
+	SelectDirectory("Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№", "РїРє", Dir, TSelectDirExtOpts(), 0);
 	edtSaveMessageDir->Text = Dir;
 
 }
@@ -752,7 +752,7 @@ void __fastcall TformMain::edtSaveMessageDirDblClick(TObject *Sender)
 void __fastcall TformMain::pcMainChange(TObject *Sender)
 {
 	memStatus->Lines->Clear();
-	lbAttachInfo->Caption = "Файлов приложений - 0";
+	lbAttachInfo->Caption = "Р¤Р°Р№Р»РѕРІ РїСЂРёР»РѕР¶РµРЅРёР№ - 0";
 	lstCrypts->Items->Clear();
 	lstAttach->Items->Clear();
     Gauge1->Progress = 0;
@@ -765,15 +765,15 @@ void __fastcall TformMain::btnLoadOpenRsaKeyClick(TObject *Sender)
 	TFileOpenDialog *dlg = new TFileOpenDialog(this);
     dlg->DefaultFolder = GetCurrentDir();
     lstCrypts->Items->Clear();
-    // Разрешаем множественный выбор файлов
+    // Р Р°Р·СЂРµС€Р°РµРј РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹Р№ РІС‹Р±РѕСЂ С„Р°Р№Р»РѕРІ
     dlg->Options << fdoAllowMultiSelect;
-    // Устанавливаем фильтр файлов с расширением .cry
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„РёР»СЊС‚СЂ С„Р°Р№Р»РѕРІ СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .cry
 	dlg->FileTypes->Add()->DisplayName = "RSA Files (*.pem)";
 	dlg->FileTypes->Items[0]->FileMask = "*.pem";
-    // Показываем диалоговое окно
+    // РџРѕРєР°Р·С‹РІР°РµРј РґРёР°Р»РѕРіРѕРІРѕРµ РѕРєРЅРѕ
 	if (dlg->Execute()) {
-        // Очищаем ListBox перед добавлением новых файлов
-        // Проходим по каждому выбранному файлу и добавляем его в ListBox
+        // РћС‡РёС‰Р°РµРј ListBox РїРµСЂРµРґ РґРѕР±Р°РІР»РµРЅРёРµРј РЅРѕРІС‹С… С„Р°Р№Р»РѕРІ
+        // РџСЂРѕС…РѕРґРёРј РїРѕ РєР°Р¶РґРѕРјСѓ РІС‹Р±СЂР°РЅРЅРѕРјСѓ С„Р°Р№Р»Сѓ Рё РґРѕР±Р°РІР»СЏРµРј РµРіРѕ РІ ListBox
 		for (int i = 0; i < dlg->Files->Count; i++) {
 
 			try
@@ -787,7 +787,7 @@ void __fastcall TformMain::btnLoadOpenRsaKeyClick(TObject *Sender)
 
         }
     }
-    // Удаляем диалог
+    // РЈРґР°Р»СЏРµРј РґРёР°Р»РѕРі
 	delete dlg;
 }
 
@@ -802,7 +802,7 @@ void TformMain::copyOpenRsaKey(const String& new_rsa_key_path)
 
 	if(keyIsNotPubkey)
 	{
-		memStatus->Lines->Add(" - Выбранный файл '" + strStd(rsa_file_name)  +"' не является открытым ключом RSA!");
+		memStatus->Lines->Add(" - Р’С‹Р±СЂР°РЅРЅС‹Р№ С„Р°Р№Р» '" + strStd(rsa_file_name)  +"' РЅРµ СЏРІР»СЏРµС‚СЃСЏ РѕС‚РєСЂС‹С‚С‹Рј РєР»СЋС‡РѕРј RSA!");
         return;
 	}
 
@@ -819,10 +819,10 @@ void TformMain::copyOpenRsaKey(const String& new_rsa_key_path)
 	};
 
 	if (keysExist) {
-		// Выводим предупреждение о том, что старые ключи будут удалены
-		int result = MessageDlg("Ключ абонента '"+ strStd(rsa_file_name) + "' уже существует. Продолжение удалит старый ключ.\nВы уверены, что хотите продолжить?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
+		// Р’С‹РІРѕРґРёРј РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Рѕ С‚РѕРј, С‡С‚Рѕ СЃС‚Р°СЂС‹Рµ РєР»СЋС‡Рё Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹
+		int result = MessageDlg("РљР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '"+ strStd(rsa_file_name) + "' СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚. РџСЂРѕРґРѕР»Р¶РµРЅРёРµ СѓРґР°Р»РёС‚ СЃС‚Р°СЂС‹Р№ РєР»СЋС‡.\nР’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
 
-		// Если пользователь нажал "No", выходим из функции
+		// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» "No", РІС‹С…РѕРґРёРј РёР· С„СѓРЅРєС†РёРё
 		if (result != mrYes) {
 			return;
 		}
@@ -834,10 +834,10 @@ void TformMain::copyOpenRsaKey(const String& new_rsa_key_path)
 			String abonent_name = getAbonentNameStr();
 
 			if(keysExist)
-				result = " - Ключ абонента '" + abonent_name + "' - обновлен";
+				result = " - РљР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '" + abonent_name + "' - РѕР±РЅРѕРІР»РµРЅ";
 			else
 			{
-				result = " - Ключ абонента '" + abonent_name + "' - добавлен";
+				result = " - РљР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '" + abonent_name + "' - РґРѕР±Р°РІР»РµРЅ";
 				chkListAbonents->Items->Add(abonent_name);
 			}
 
@@ -846,7 +846,7 @@ void TformMain::copyOpenRsaKey(const String& new_rsa_key_path)
 		} catch (const std::filesystem::filesystem_error& e) {
 
 			ShowMessage(e.what());
-			result = "Ошибка добавления ключа абонента '" + getAbonentNameStr() + "' !";
+			result = "РћС€РёР±РєР° РґРѕР±Р°РІР»РµРЅРёСЏ РєР»СЋС‡Р° Р°Р±РѕРЅРµРЅС‚Р° '" + getAbonentNameStr() + "' !";
 		}
 
 		memStatus->Lines->Add(result);
@@ -885,10 +885,10 @@ void TformMain::delAbonentFunc(int ind)
 	bool keysExist = std::filesystem::exists(publicKeyPath);
 
 	if (keysExist) {
-		// Выводим предупреждение о том, что старые ключи будут удалены
-		int result = MessageDlg("Продолжение удалит открытый RSA ключ абонента '" + strStd(abonent) + "'.\nВы уверены, что хотите продолжить?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
+		// Р’С‹РІРѕРґРёРј РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Рѕ С‚РѕРј, С‡С‚Рѕ СЃС‚Р°СЂС‹Рµ РєР»СЋС‡Рё Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹
+		int result = MessageDlg("РџСЂРѕРґРѕР»Р¶РµРЅРёРµ СѓРґР°Р»РёС‚ РѕС‚РєСЂС‹С‚С‹Р№ RSA РєР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '" + strStd(abonent) + "'.\nР’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
 
-		// Если пользователь нажал "No", выходим из функции
+		// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» "No", РІС‹С…РѕРґРёРј РёР· С„СѓРЅРєС†РёРё
 		if (result != mrYes) {
 			return;
 		}
@@ -896,13 +896,13 @@ void TformMain::delAbonentFunc(int ind)
 	else
 	{
 		chkListAbonents->Items->Delete(ind);
-		memStatus->Lines->Add(" - Открытый RSA ключ абонента '" + strStd(abonent) +"' не найден!");
+		memStatus->Lines->Add(" - РћС‚РєСЂС‹С‚С‹Р№ RSA РєР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '" + strStd(abonent) +"' РЅРµ РЅР°Р№РґРµРЅ!");
 		return;
 	}
 
 	chkListAbonents->Items->Delete(ind);
 	std::filesystem::remove(publicKeyPath);
-	memStatus->Lines->Add(" - Открытый RSA ключ абонента '" + strStd(abonent) +"' удален!");
+	memStatus->Lines->Add(" - РћС‚РєСЂС‹С‚С‹Р№ RSA РєР»СЋС‡ Р°Р±РѕРЅРµРЅС‚Р° '" + strStd(abonent) +"' СѓРґР°Р»РµРЅ!");
 }
 void __fastcall TformMain::delOperatorClick(TObject *Sender)
 {
@@ -933,17 +933,17 @@ void TformMain::delOperatorFunc(int ind)
 	bool keysExist = std::filesystem::exists(priKeyPath);
 
 	if (keysExist) {
-		// Выводим предупреждение о том, что старые ключи будут удалены
-		int result = MessageDlg("Продолжение удалит закрытый RSA ключ оператора '" + strStd(operatoR) + "'.\nВы уверены, что хотите продолжить?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
+		// Р’С‹РІРѕРґРёРј РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Рѕ С‚РѕРј, С‡С‚Рѕ СЃС‚Р°СЂС‹Рµ РєР»СЋС‡Рё Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹
+		int result = MessageDlg("РџСЂРѕРґРѕР»Р¶РµРЅРёРµ СѓРґР°Р»РёС‚ Р·Р°РєСЂС‹С‚С‹Р№ RSA РєР»СЋС‡ РѕРїРµСЂР°С‚РѕСЂР° '" + strStd(operatoR) + "'.\nР’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
 
-		// Если пользователь нажал "No", выходим из функции
+		// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» "No", РІС‹С…РѕРґРёРј РёР· С„СѓРЅРєС†РёРё
 		if (result != mrYes) {
 			return;
 		}
 
-		result = MessageDlg("Все криптограммы направленные ранее оператору '" + strStd(operatoR) + "' расшифровать будет невозможно.\nВы уверены, что хотите продолжить?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
+		result = MessageDlg("Р’СЃРµ РєСЂРёРїС‚РѕРіСЂР°РјРјС‹ РЅР°РїСЂР°РІР»РµРЅРЅС‹Рµ СЂР°РЅРµРµ РѕРїРµСЂР°С‚РѕСЂСѓ '" + strStd(operatoR) + "' СЂР°СЃС€РёС„СЂРѕРІР°С‚СЊ Р±СѓРґРµС‚ РЅРµРІРѕР·РјРѕР¶РЅРѕ.\nР’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, 0);
 
-		// Если пользователь нажал "No", выходим из функции
+		// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» "No", РІС‹С…РѕРґРёРј РёР· С„СѓРЅРєС†РёРё
 		if (result != mrYes) {
 			return;
 		}
@@ -952,13 +952,13 @@ void TformMain::delOperatorFunc(int ind)
 	else
 	{
 		lstOperators->Items->Delete(ind);
-		memStatus->Lines->Add(" - Закрытый RSA ключ оператора '" + strStd(operatoR) +"' не найден!");
+		memStatus->Lines->Add(" - Р—Р°РєСЂС‹С‚С‹Р№ RSA РєР»СЋС‡ РѕРїРµСЂР°С‚РѕСЂР° '" + strStd(operatoR) +"' РЅРµ РЅР°Р№РґРµРЅ!");
 		return;
 	}
 
 	lstOperators->Items->Delete(ind);
 	std::filesystem::remove(priKeyPath);
-	memStatus->Lines->Add(" - Закрытый RSA ключ оператора '" + strStd(operatoR) +"' удален!");
+	memStatus->Lines->Add(" - Р—Р°РєСЂС‹С‚С‹Р№ RSA РєР»СЋС‡ РѕРїРµСЂР°С‚РѕСЂР° '" + strStd(operatoR) +"' СѓРґР°Р»РµРЅ!");
 
 	if(str_operator == EditUserName->Text)
 	{
@@ -973,11 +973,11 @@ void TformMain::delOperatorFunc(int ind)
 
 void __fastcall TformMain::memTextChange(TObject *Sender)
 {
-	const int maxLength = 150; // Максимальное количество символов
+	const int maxLength = 150; // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ
 	if (memText->Text.Length() > maxLength) {
-		memText->Text = memText->Text.SubString(1, maxLength); // Обрезаем текст до разрешенного количества символов
-		memText->SelStart = memText->Text.Length(); // Перемещаем каретку в конец
-		ShowMessage("Превышен максимальный размер сопроводительного письма (130 знаков)!");
+		memText->Text = memText->Text.SubString(1, maxLength); // РћР±СЂРµР·Р°РµРј С‚РµРєСЃС‚ РґРѕ СЂР°Р·СЂРµС€РµРЅРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° СЃРёРјРІРѕР»РѕРІ
+		memText->SelStart = memText->Text.Length(); // РџРµСЂРµРјРµС‰Р°РµРј РєР°СЂРµС‚РєСѓ РІ РєРѕРЅРµС†
+		ShowMessage("РџСЂРµРІС‹С€РµРЅ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ СЃРѕРїСЂРѕРІРѕРґРёС‚РµР»СЊРЅРѕРіРѕ РїРёСЃСЊРјР° (130 Р·РЅР°РєРѕРІ)!");
 	}
 }
 //---------------------------------------------------------------------------
@@ -985,67 +985,67 @@ void __fastcall TformMain::memTextChange(TObject *Sender)
 
 void __fastcall TformMain::Timer1Timer(TObject *Sender)
 {
-	Gauge1->Progress = progress.load();  // Обновляем прогресс на основе атомарной переменной
+	Gauge1->Progress = progress.load();  // РћР±РЅРѕРІР»СЏРµРј РїСЂРѕРіСЂРµСЃСЃ РЅР° РѕСЃРЅРѕРІРµ Р°С‚РѕРјР°СЂРЅРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№
 
-	// Если прогресс достиг 100%, останавливаем таймер
+	// Р•СЃР»Рё РїСЂРѕРіСЂРµСЃСЃ РґРѕСЃС‚РёРі 100%, РѕСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚Р°Р№РјРµСЂ
 	if (Gauge1->Progress >= 100) {
 		Timer1->Enabled = false;
-		memStatus->Lines->Add("Процесс шифрования завершен.");
+		memStatus->Lines->Add("РџСЂРѕС†РµСЃСЃ С€РёС„СЂРѕРІР°РЅРёСЏ Р·Р°РІРµСЂС€РµРЅ.");
 	}
 }
 //---------------------------------------------------------------------------
 void __fastcall TformMain::LockFormExceptStopButton(TWinControl* parentControl) {
-    // Итерируем по всем дочерним элементам текущего контейнера
+    // РС‚РµСЂРёСЂСѓРµРј РїРѕ РІСЃРµРј РґРѕС‡РµСЂРЅРёРј СЌР»РµРјРµРЅС‚Р°Рј С‚РµРєСѓС‰РµРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°
     for (int i = 0; i < parentControl->ControlCount; i++) {
         TControl *control = parentControl->Controls[i];
 
-        // Блокируем кнопки, кроме кнопки остановки
+        // Р‘Р»РѕРєРёСЂСѓРµРј РєРЅРѕРїРєРё, РєСЂРѕРјРµ РєРЅРѕРїРєРё РѕСЃС‚Р°РЅРѕРІРєРё
 		if ((dynamic_cast<TButton*>(control) || dynamic_cast<TEdit*>(control) || dynamic_cast<TMaskEdit*>(control)
 		 || dynamic_cast<TListBox*>(control) || dynamic_cast<TCheckListBox*>(control) ) && control != btnDecrypt && control != btnEncrypt) {
             control->Enabled = false;
 		}
 
-        // Если это PageControl, то отключаем переключение вкладок
+        // Р•СЃР»Рё СЌС‚Рѕ PageControl, С‚Рѕ РѕС‚РєР»СЋС‡Р°РµРј РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РІРєР»Р°РґРѕРє
 		if (dynamic_cast<TPageControl*>(control)) {
             TPageControl *pageControl = static_cast<TPageControl*>(control);
 
-            // Блокируем переключение вкладок, но оставляем активные элементы внутри текущей вкладки
+            // Р‘Р»РѕРєРёСЂСѓРµРј РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РІРєР»Р°РґРѕРє, РЅРѕ РѕСЃС‚Р°РІР»СЏРµРј Р°РєС‚РёРІРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РІРЅСѓС‚СЂРё С‚РµРєСѓС‰РµР№ РІРєР»Р°РґРєРё
             for (int j = 0; j < pageControl->PageCount; j++) {
                 TTabSheet *tabSheet = pageControl->Pages[j];
                 if (tabSheet != pageControl->ActivePage) {
-                    tabSheet->TabVisible = false;  // Скрываем вкладки
+                    tabSheet->TabVisible = false;  // РЎРєСЂС‹РІР°РµРј РІРєР»Р°РґРєРё
                 }
             }
         }
 
-        // Рекурсивно обрабатываем дочерние элементы, если это контейнер
+        // Р РµРєСѓСЂСЃРёРІРЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РґРѕС‡РµСЂРЅРёРµ СЌР»РµРјРµРЅС‚С‹, РµСЃР»Рё СЌС‚Рѕ РєРѕРЅС‚РµР№РЅРµСЂ
         if (dynamic_cast<TWinControl*>(control) != nullptr) {
             LockFormExceptStopButton(static_cast<TWinControl*>(control));
         }
     }
 
-    // Принудительное обновление интерфейса
+    // РџСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕРµ РѕР±РЅРѕРІР»РµРЅРёРµ РёРЅС‚РµСЂС„РµР№СЃР°
     Application->ProcessMessages();
 }
 
 void __fastcall TformMain::UnlockForm(TWinControl* parentControl) {
-    // Итерируем по всем дочерним элементам текущего контейнера
+    // РС‚РµСЂРёСЂСѓРµРј РїРѕ РІСЃРµРј РґРѕС‡РµСЂРЅРёРј СЌР»РµРјРµРЅС‚Р°Рј С‚РµРєСѓС‰РµРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°
     for (int i = 0; i < parentControl->ControlCount; i++) {
         TControl *control = parentControl->Controls[i];
 
-		// Включаем все элементы, кроме кнопки остановки
+		// Р’РєР»СЋС‡Р°РµРј РІСЃРµ СЌР»РµРјРµРЅС‚С‹, РєСЂРѕРјРµ РєРЅРѕРїРєРё РѕСЃС‚Р°РЅРѕРІРєРё
 		if(control != nullptr)
 			control->Enabled = true;
 
          if (dynamic_cast<TPageControl*>(control)) {
             TPageControl *pageControl = static_cast<TPageControl*>(control);
-            // Показываем все вкладки снова
+            // РџРѕРєР°Р·С‹РІР°РµРј РІСЃРµ РІРєР»Р°РґРєРё СЃРЅРѕРІР°
             for (int j = 0; j < pageControl->PageCount; j++) {
                 pageControl->Pages[j]->TabVisible = true;
             }
         }
 
-        // Если компонент является контейнером (например, TPageControl, TPanel), рекурсивно обрабатываем его дочерние элементы
+        // Р•СЃР»Рё РєРѕРјРїРѕРЅРµРЅС‚ СЏРІР»СЏРµС‚СЃСЏ РєРѕРЅС‚РµР№РЅРµСЂРѕРј (РЅР°РїСЂРёРјРµСЂ, TPageControl, TPanel), СЂРµРєСѓСЂСЃРёРІРЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РµРіРѕ РґРѕС‡РµСЂРЅРёРµ СЌР»РµРјРµРЅС‚С‹
 		if (dynamic_cast<TWinControl*>(control) != nullptr) {
             UnlockForm(static_cast<TWinControl*>(control));
         }

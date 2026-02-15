@@ -1,4 +1,4 @@
-#ifndef MESSAGE_CRYPTA_SERIALIZER_H
+п»ї#ifndef MESSAGE_CRYPTA_SERIALIZER_H
 #define MESSAGE_CRYPTA_SERIALIZER_H
 
 
@@ -10,31 +10,31 @@
  #include <sstream>
 #include "Message.h"
 
-// Класс для сериализации/десериализации Message и Crypta
+// РљР»Р°СЃСЃ РґР»СЏ СЃРµСЂРёР°Р»РёР·Р°С†РёРё/РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё Message Рё Crypta
 class MessageCryptaSerializer {
 public:
-    // Сериализация Message в байты
+    // РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ Message РІ Р±Р°Р№С‚С‹
 	static std::vector<BYTE> serializeMessage(const Message& message);
 	static std::vector<BYTE> serializeMessage2(const Message& message);
-    // Десериализация Message из байтов
+    // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ Message РёР· Р±Р°Р№С‚РѕРІ
     static Message deserializeMessage(const std::vector<BYTE>& data);
 
-    // Сохранение Message в файл с расширением .msg
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ Message РІ С„Р°Р№Р» СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .msg
     static void saveMessageToFile(const Message& message, const std::string& filepath);
 
-    // Загрузка Message из файла с расширением .msg
+    // Р—Р°РіСЂСѓР·РєР° Message РёР· С„Р°Р№Р»Р° СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .msg
     static Message loadMessageFromFile(const std::string& filepath);
 
-    // Сериализация Crypta в байты
+    // РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ Crypta РІ Р±Р°Р№С‚С‹
     static std::vector<BYTE> serializeCrypta(const Crypta& crypta);
 
-    // Десериализация Crypta из байтов
+    // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ Crypta РёР· Р±Р°Р№С‚РѕРІ
     static Crypta deserializeCrypta(const std::vector<BYTE>& data);
 
-    // Сохранение Crypta в файл с расширением .cry
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ Crypta РІ С„Р°Р№Р» СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .cry
     static void saveCryptaToFile(const Crypta& crypta, const std::string& filepath);
 
-    // Загрузка Crypta из файла с расширением .cry
+    // Р—Р°РіСЂСѓР·РєР° Crypta РёР· С„Р°Р№Р»Р° СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .cry
     static Crypta loadCryptaFromFile(const std::string& filepath);
 };
 

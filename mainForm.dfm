@@ -274,7 +274,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 659
-        Width = 1268
+        Width = 529
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -282,7 +282,6 @@ object formMain: TformMain
         Margins.Bottom = 6
         Align = alBottom
         Caption = #1055#1091#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1080#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1072#1085#1085#1099#1093' '#1089#1086#1086#1073#1097#1077#1085#1080#1081':'
-        ExplicitWidth = 529
       end
       object lstCrypts: TListBox
         AlignWithMargins = True
@@ -358,7 +357,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 201
-        Width = 1256
+        Width = 131
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -366,7 +365,6 @@ object formMain: TformMain
         Margins.Bottom = 6
         Align = alTop
         Caption = #1054#1087#1077#1088#1072#1090#1086#1088#1099':'
-        ExplicitWidth = 131
       end
       object btnGenerateRsaKeys: TButton
         AlignWithMargins = True

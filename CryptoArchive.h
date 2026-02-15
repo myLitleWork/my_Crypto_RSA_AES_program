@@ -1,4 +1,4 @@
-#include <boost/archive/binary_oarchive.hpp>
+п»ї#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
 #include <fstream>
@@ -16,10 +16,10 @@ class CryptoArchiveCreator {
 
 public:
 
-	static inline std::string baseOutputDir = "Отправка"; // Базовая директория для сохранения архива
-	static inline std::string sender = "";        // Отправитель
+	static inline std::string baseOutputDir = "РћС‚РїСЂР°РІРєР°"; // Р‘Р°Р·РѕРІР°СЏ РґРёСЂРµРєС‚РѕСЂРёСЏ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ Р°СЂС…РёРІР°
+	static inline std::string sender = "";        // РћС‚РїСЂР°РІРёС‚РµР»СЊ
 
-	// Конструктор принимает отправителя
+	// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїСЂРёРЅРёРјР°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ
 	CryptoArchiveCreator() = default;
 	CryptoArchiveCreator(const std::string& recipient, std::atomic<bool>* stopFlag, std::atomic<int>* progress);
 
@@ -30,8 +30,8 @@ private:
 	std::string recipient;
 	std::string rsaPublicKey;
 	std::string aesKey;
-    std::atomic<bool>* stopRequested;  // Флаг остановки процесса
-	std::atomic<int>* progress;        // Прогресс выполнения
+    std::atomic<bool>* stopRequested;  // Р¤Р»Р°Рі РѕСЃС‚Р°РЅРѕРІРєРё РїСЂРѕС†РµСЃСЃР°
+	std::atomic<int>* progress;        // РџСЂРѕРіСЂРµСЃСЃ РІС‹РїРѕР»РЅРµРЅРёСЏ
 
 	struct Header {
 
@@ -52,7 +52,7 @@ private:
 
 	std::string loadPublicKey(const std::string& recipient);
 
-    // Функция для получения имени криптоархива
+    // Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РєСЂРёРїС‚РѕР°СЂС…РёРІР°
 	std::string getArchiveFilename();
 
 	uint64_t getTotalFileSize(const std::vector<std::string>& filePaths);
