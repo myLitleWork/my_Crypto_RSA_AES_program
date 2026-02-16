@@ -92,11 +92,19 @@ private:	// User declarations
 
 	std::map<std::string, CryptoArchiveCreator> mapCryptoArchiveCreators;
 
+	bool IsCry2File(const String& filePath) const;
+	bool IsAuthorizedByCredentials(const std::string& username, const std::string& password) const;
+	bool PromptCredentialsDialog(String& username, String& password);
+	void SetAuthorizationUiState(bool authorized, const std::string& username);
+	bool EnsureAuthorizationForAutoDecrypt();
+	bool AskAndSetDecryptionOutputDir();
+	bool StartAutoDecrypt(const String& cryptPath);
+	void HandleIncomingDecryptRequest(const String& cryptPath);
+	void HandleStartupCryptArg();
+	void CheckPendingDecryptFile();
 
 public:		// User declarations
 	__fastcall TformMain(TComponent* Owner);
-
-	std:: string p123;
 	bool autoriz = false;
 	void UpdateLabelWithFileInfo();
 	void copyOpenRsaKey(const String& rsa_key_path);
@@ -106,6 +114,7 @@ public:		// User declarations
 	void __fastcall UnlockForm(TWinControl* parentControl);
 	void __fastcall LockFormExceptStopButton(TWinControl* parentControl);
 
+	bool autoDecryptFromFileRequest = false;
 	bool isProcessing = false;
 };
 //---------------------------------------------------------------------------

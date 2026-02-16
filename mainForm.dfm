@@ -2,9 +2,9 @@ object formMain: TformMain
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
-  Caption = #1055#1088#1086#1075#1088#1072#1084#1084#1072'_3.0'
-  ClientHeight = 1486
-  ClientWidth = 1308
+  Caption = #1055#1088#1086#1075#1088#1072#1084#1084#1072'_3.1'
+  ClientHeight = 1451
+  ClientWidth = 1288
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,8 +18,8 @@ object formMain: TformMain
   object lbAuto: TLabel
     AlignWithMargins = True
     Left = 6
-    Top = 1435
-    Width = 1296
+    Top = 1400
+    Width = 1276
     Height = 45
     Margins.Left = 6
     Margins.Top = 6
@@ -40,7 +40,7 @@ object formMain: TformMain
     AlignWithMargins = True
     Left = 6
     Top = 6
-    Width = 1296
+    Width = 1276
     Height = 32
     Margins.Left = 6
     Margins.Top = 6
@@ -54,7 +54,7 @@ object formMain: TformMain
     AlignWithMargins = True
     Left = 6
     Top = 102
-    Width = 1296
+    Width = 1276
     Height = 32
     Margins.Left = 6
     Margins.Top = 6
@@ -68,7 +68,7 @@ object formMain: TformMain
     AlignWithMargins = True
     Left = 6
     Top = 202
-    Width = 1296
+    Width = 1276
     Height = 871
     Margins.Left = 6
     Margins.Top = 6
@@ -79,7 +79,7 @@ object formMain: TformMain
     TabOrder = 0
     Visible = False
     OnChange = pcMainChange
-    ExplicitWidth = 1284
+    ExplicitWidth = 1264
     object TabSheet2: TTabSheet
       Margins.Left = 6
       Margins.Top = 6
@@ -91,7 +91,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 253
-        Width = 1268
+        Width = 1248
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -105,7 +105,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 6
-        Width = 1268
+        Width = 1248
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -119,7 +119,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 659
-        Width = 1268
+        Width = 1248
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -133,7 +133,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 443
-        Width = 1268
+        Width = 1248
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -147,7 +147,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 615
-        Width = 1268
+        Width = 1248
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -167,7 +167,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 50
-        Width = 1268
+        Width = 1248
         Height = 191
         Margins.Left = 6
         Margins.Top = 6
@@ -177,13 +177,13 @@ object formMain: TformMain
         ItemHeight = 32
         PopupMenu = popAbonents
         TabOrder = 0
-        ExplicitWidth = 1256
+        ExplicitWidth = 1236
       end
       object memText: TMemo
         AlignWithMargins = True
         Left = 6
         Top = 297
-        Width = 1268
+        Width = 1248
         Height = 72
         Margins.Left = 6
         Margins.Top = 6
@@ -192,13 +192,13 @@ object formMain: TformMain
         Align = alTop
         TabOrder = 1
         OnChange = memTextChange
-        ExplicitWidth = 1256
+        ExplicitWidth = 1236
       end
       object btnAddAtachments: TButton
         AlignWithMargins = True
         Left = 6
         Top = 381
-        Width = 1268
+        Width = 1248
         Height = 50
         Margins.Left = 6
         Margins.Top = 6
@@ -208,13 +208,13 @@ object formMain: TformMain
         Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1092#1072#1081#1083#1099' '#1087#1088#1080#1083#1086#1078#1077#1085#1080#1103
         TabOrder = 2
         OnClick = btnAddAtachmentsClick
-        ExplicitWidth = 1256
+        ExplicitWidth = 1236
       end
       object lstAttach: TListBox
         AlignWithMargins = True
         Left = 6
         Top = 487
-        Width = 1268
+        Width = 1248
         Height = 116
         Margins.Left = 6
         Margins.Top = 6
@@ -225,13 +225,13 @@ object formMain: TformMain
         ItemHeight = 32
         PopupMenu = popClear
         TabOrder = 3
-        ExplicitWidth = 1256
+        ExplicitWidth = 1236
       end
       object btnEncrypt: TButton
         AlignWithMargins = True
         Left = 6
         Top = 755
-        Width = 1268
+        Width = 1248
         Height = 50
         Margins.Left = 6
         Margins.Top = 6
@@ -241,13 +241,13 @@ object formMain: TformMain
         Caption = #1047#1072#1096#1080#1092#1088#1086#1074#1072#1090#1100
         TabOrder = 4
         OnClick = btnEncryptClick
-        ExplicitWidth = 1256
+        ExplicitWidth = 1236
       end
       object edtDirCrypts: TEdit
         AlignWithMargins = True
         Left = 6
         Top = 703
-        Width = 1268
+        Width = 1248
         Height = 40
         Margins.Left = 6
         Margins.Top = 6
@@ -260,7 +260,7 @@ object formMain: TformMain
         TabOrder = 5
         TextHint = ' ('#1076#1074#1086#1081#1085#1086#1081' '#1096#1077#1083#1095#1086#1082' '#1076#1083#1103' '#1074#1099#1073#1086#1088#1072')'
         OnDblClick = edtDirCryptsDblClick
-        ExplicitWidth = 1256
+        ExplicitWidth = 1236
       end
     end
     object TabSheet3: TTabSheet
@@ -274,7 +274,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 659
-        Width = 529
+        Width = 1248
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -282,12 +282,13 @@ object formMain: TformMain
         Margins.Bottom = 6
         Align = alBottom
         Caption = #1055#1091#1090#1100' '#1089#1086#1093#1088#1072#1085#1077#1085#1080#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1072#1085#1085#1099#1093' '#1089#1086#1086#1073#1097#1077#1085#1080#1081':'
+        ExplicitWidth = 529
       end
       object lstCrypts: TListBox
         AlignWithMargins = True
         Left = 6
         Top = 68
-        Width = 1268
+        Width = 1248
         Height = 579
         Margins.Left = 6
         Margins.Top = 6
@@ -302,7 +303,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 6
-        Width = 1268
+        Width = 1248
         Height = 50
         Margins.Left = 6
         Margins.Top = 6
@@ -312,12 +313,13 @@ object formMain: TformMain
         Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1088#1080#1087#1090#1086#1075#1088#1072#1084#1084#1099' '#1076#1083#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1072#1085#1080#1103
         TabOrder = 1
         OnClick = btnAddCryptsClick
+        ExplicitWidth = 1268
       end
       object btnDecrypt: TButton
         AlignWithMargins = True
         Left = 6
         Top = 755
-        Width = 1268
+        Width = 1248
         Height = 50
         Margins.Left = 6
         Margins.Top = 6
@@ -327,12 +329,13 @@ object formMain: TformMain
         Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1072#1090#1100' '#1082#1088#1080#1087#1090#1086#1075#1088#1072#1084#1084#1099
         TabOrder = 2
         OnClick = btnDecryptClick
+        ExplicitWidth = 1268
       end
       object edtSaveMessageDir: TEdit
         AlignWithMargins = True
         Left = 6
         Top = 703
-        Width = 1268
+        Width = 1248
         Height = 40
         Margins.Left = 6
         Margins.Top = 6
@@ -344,6 +347,7 @@ object formMain: TformMain
         TabOrder = 3
         TextHint = ' ('#1076#1074#1086#1081#1085#1086#1081' '#1096#1077#1083#1095#1086#1082' '#1076#1083#1103' '#1074#1099#1073#1086#1088#1072')'
         OnDblClick = edtSaveMessageDirDblClick
+        ExplicitWidth = 1268
       end
     end
     object TabSheet1: TTabSheet
@@ -357,7 +361,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 201
-        Width = 131
+        Width = 1236
         Height = 32
         Margins.Left = 6
         Margins.Top = 6
@@ -365,12 +369,13 @@ object formMain: TformMain
         Margins.Bottom = 6
         Align = alTop
         Caption = #1054#1087#1077#1088#1072#1090#1086#1088#1099':'
+        ExplicitWidth = 131
       end
       object btnGenerateRsaKeys: TButton
         AlignWithMargins = True
         Left = 6
         Top = 15
-        Width = 1256
+        Width = 1236
         Height = 50
         Margins.Left = 6
         Margins.Top = 15
@@ -380,12 +385,13 @@ object formMain: TformMain
         Caption = #1057#1075#1077#1085#1077#1088#1080#1088#1086#1074#1072#1090#1100' '#1085#1086#1074#1099#1077' '#1082#1083#1102#1095#1080
         TabOrder = 0
         OnClick = btnGenerateRsaKeysClick
+        ExplicitWidth = 1256
       end
       object btnSaveOpenRsaKey: TButton
         AlignWithMargins = True
         Left = 6
         Top = 139
-        Width = 1256
+        Width = 1236
         Height = 50
         Margins.Left = 6
         Margins.Top = 6
@@ -395,12 +401,13 @@ object formMain: TformMain
         Caption = #1055#1086#1076#1077#1083#1080#1090#1100#1089#1103' '#1086#1090#1082#1088#1099#1090#1099#1084' '#1082#1083#1102#1095#1086#1084
         TabOrder = 1
         OnClick = btnSaveOpenRsaKeyClick
+        ExplicitWidth = 1256
       end
       object lstOperators: TListBox
         AlignWithMargins = True
         Left = 6
         Top = 245
-        Width = 1256
+        Width = 1236
         Height = 548
         Margins.Left = 6
         Margins.Top = 6
@@ -417,7 +424,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 6
         Top = 77
-        Width = 1256
+        Width = 1236
         Height = 50
         Margins.Left = 6
         Margins.Top = 6
@@ -427,6 +434,7 @@ object formMain: TformMain
         Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1086#1090#1082#1088#1099#1090#1099#1093' '#1082#1083#1102#1095#1077#1081' '#1072#1073#1086#1085#1077#1085#1090#1086#1074
         TabOrder = 3
         OnClick = btnLoadOpenRsaKeyClick
+        ExplicitWidth = 1256
       end
     end
   end
@@ -434,7 +442,7 @@ object formMain: TformMain
     AlignWithMargins = True
     Left = 6
     Top = 50
-    Width = 1296
+    Width = 1276
     Height = 40
     Margins.Left = 6
     Margins.Top = 6
@@ -443,13 +451,13 @@ object formMain: TformMain
     Align = alTop
     AutoSize = False
     TabOrder = 1
-    ExplicitWidth = 1284
+    ExplicitWidth = 1264
   end
   object EditPassword: TMaskEdit
     AlignWithMargins = True
     Left = 6
     Top = 146
-    Width = 1296
+    Width = 1276
     Height = 40
     Margins.Left = 6
     Margins.Top = 6
@@ -459,14 +467,14 @@ object formMain: TformMain
     AutoSize = False
     TabOrder = 2
     Text = ''
-    ExplicitWidth = 1284
+    ExplicitWidth = 1264
   end
   object grpStatus: TGroupBox
     AlignWithMargins = True
     Left = 2
     Top = 1085
-    Width = 1304
-    Height = 338
+    Width = 1284
+    Height = 303
     Margins.Left = 2
     Margins.Top = 6
     Margins.Right = 2
@@ -474,13 +482,13 @@ object formMain: TformMain
     Align = alClient
     Caption = #1057#1090#1072#1090#1091#1089' '#1074#1099#1087#1086#1083#1085#1077#1085#1080#1103':'
     TabOrder = 3
-    ExplicitWidth = 1292
-    ExplicitHeight = 330
+    ExplicitWidth = 1272
+    ExplicitHeight = 295
     object Gauge1: TGauge
       AlignWithMargins = True
       Left = 8
-      Top = 283
-      Width = 1288
+      Top = 248
+      Width = 1268
       Height = 47
       Margins.Left = 6
       Margins.Top = 6
@@ -496,8 +504,8 @@ object formMain: TformMain
       AlignWithMargins = True
       Left = 8
       Top = 40
-      Width = 1288
-      Height = 231
+      Width = 1268
+      Height = 196
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -512,8 +520,8 @@ object formMain: TformMain
       ReadOnly = True
       ScrollBars = ssVertical
       TabOrder = 0
-      ExplicitWidth = 1276
-      ExplicitHeight = 223
+      ExplicitWidth = 1256
+      ExplicitHeight = 188
     end
   end
   object saveDialog: TSaveDialog

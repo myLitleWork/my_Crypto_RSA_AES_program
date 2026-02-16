@@ -15,6 +15,8 @@
 #include "myKeyGenerator.h"
 #include <functional>
 #include <windows.h>
+#include <shellapi.h>
+#include <shlobj.h>
 #include "FileCtrl.hpp"
 #include "StreamWriter.h"
 #include "CryptoArchiveReader.h"
@@ -31,6 +33,26 @@ std::atomic<bool> stopFlag(false); // Флаг остановки процесс
 #define stdStr(s) std::string{AnsiString{s}.c_str()}
 #define strStd(s) String{s.c_str()}
 //------------------------------------------------------------------------
+namespace
+{
+std::wstring GetAppDataFolder()
+{
+	wchar_t buf[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, buf))) {
+		std::wstring folder = std::wstring(buf) + L"\\ShifRator3\\";
+		CreateDirectoryW(folder.c_str(), nullptr);
+		return folder;
+	}
+	wchar_t temp[MAX_PATH];
+	GetTempPathW(MAX_PATH, temp);
+	return std::wstring(temp);
+}
+
+std::wstring GetRequestFilePath()
+{
+	return GetAppDataFolder() + L"ShifRator3_request.txt";
+}
+}
 
 std::string extractNameBeforeUnderscore(const std::string& fileName) {
     size_t pos = fileName.find('_');
@@ -184,6 +206,278 @@ TformMain *formMain;
 __fastcall TformMain::TformMain(TComponent* Owner)
 	: TForm(Owner)
 {
+}
+
+void TformMain::CheckPendingDecryptFile()
+{
+	std::wstring reqPath = GetRequestFilePath();
+
+	if (GetFileAttributesW(reqPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+		return;
+
+	HANDLE hFile = CreateFileW(
+		reqPath.c_str(),
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		nullptr,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		nullptr
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return;
+
+	DWORD fileSize = GetFileSize(hFile, nullptr);
+	if (fileSize == 0 || fileSize == INVALID_FILE_SIZE) {
+		CloseHandle(hFile);
+		DeleteFileW(reqPath.c_str());
+		return;
+	}
+
+	std::vector<char> buf(fileSize + 1, 0);
+	DWORD bytesRead = 0;
+	ReadFile(hFile, buf.data(), fileSize, &bytesRead, nullptr);
+	CloseHandle(hFile);
+	DeleteFileW(reqPath.c_str());
+
+	if (bytesRead == 0)
+		return;
+
+	String cryptPath = String(buf.data());
+
+	if (!cryptPath.IsEmpty())
+		HandleIncomingDecryptRequest(cryptPath);
+}
+
+//---------------------------------------------------------------------------
+
+bool TformMain::IsCry2File(const String& filePath) const
+{
+	if (filePath.IsEmpty())
+		return false;
+
+	const String ext = LowerCase(ExtractFileExt(filePath));
+	return ext == ".cry2" && FileExists(filePath);
+}
+
+bool TformMain::IsAuthorizedByCredentials(const std::string& username, const std::string& password) const
+{
+	if (username.empty() || password.empty())
+		return false;
+
+	try {
+		std::string decrypted_pri_key = KeyGenerator::DecryptPrivateKey(username, password);
+		return decrypted_pri_key.find("PRIVATE") != std::string::npos;
+	} catch (...) {
+		return false;
+	}
+}
+
+bool TformMain::PromptCredentialsDialog(String& username, String& password)
+{
+	TForm* dialog = new TForm(this);
+	try {
+		dialog->BorderStyle = bsDialog;
+		dialog->Position = poScreenCenter;
+		dialog->Caption = "Авторизация";
+		dialog->ClientWidth = 560;
+		dialog->ClientHeight = 230;
+
+		TLabel* lbLogin = new TLabel(dialog);
+		lbLogin->Parent = dialog;
+		lbLogin->Left = 20;
+		lbLogin->Top = 24;
+		lbLogin->Caption = "Логин:";
+
+		TEdit* edtLogin = new TEdit(dialog);
+		edtLogin->Parent = dialog;
+		edtLogin->Left = 20;
+		edtLogin->Top = 52;
+		edtLogin->Width = 520;
+		edtLogin->Text = username;
+
+		TLabel* lbPassword = new TLabel(dialog);
+		lbPassword->Parent = dialog;
+		lbPassword->Left = 20;
+		lbPassword->Top = 96;
+		lbPassword->Caption = "Пароль:";
+
+		TMaskEdit* edtPassword = new TMaskEdit(dialog);
+		edtPassword->Parent = dialog;
+		edtPassword->Left = 20;
+		edtPassword->Top = 124;
+		edtPassword->Width = 520;
+		edtPassword->PasswordChar = '*';
+		edtPassword->Text = password;
+
+		TButton* btnOk = new TButton(dialog);
+		btnOk->Parent = dialog;
+		btnOk->Caption = "OK";
+		btnOk->ModalResult = mrOk;
+		btnOk->Default = true;
+		btnOk->Left = 370;
+		btnOk->Top = 182;
+		btnOk->Width = 80;
+
+		TButton* btnCancel = new TButton(dialog);
+		btnCancel->Parent = dialog;
+		btnCancel->Caption = "Отмена";
+		btnCancel->ModalResult = mrCancel;
+		btnCancel->Cancel = true;
+		btnCancel->Left = 460;
+		btnCancel->Top = 182;
+		btnCancel->Width = 80;
+
+		dialog->ActiveControl = edtLogin;
+
+		if (dialog->ShowModal() != mrOk)
+			return false;
+
+		username = Trim(edtLogin->Text);
+		password = edtPassword->Text;
+		return !username.IsEmpty() && !password.IsEmpty();
+	} __finally {
+		delete dialog;
+	}
+}
+
+void TformMain::SetAuthorizationUiState(bool authorized, const std::string& username)
+{
+	autoriz = authorized;
+
+	if (authorized) {
+		lbAuto->Caption = "Авторизован как оператор: \"" + strStd(username) + "\"";
+		pcMain->Visible = true;
+		lbAuto->Visible = true;
+		return;
+	}
+
+	lbAuto->Caption = "Нет авторизации!";
+	pcMain->Visible = false;
+	lbAuto->Visible = false;
+	memStatus->Lines->Clear();
+}
+
+bool TformMain::EnsureAuthorizationForAutoDecrypt()
+{
+	// Если пользователь уже авторизован в текущем сеансе, не спрашиваем повторно.
+	if (autoriz && !EditUserName->Text.IsEmpty() && !EditPassword->Text.IsEmpty())
+		return true;
+
+	std::string username = stdStr(EditUserName->Text);
+	std::string password = stdStr(EditPassword->Text);
+
+	if (IsAuthorizedByCredentials(username, password)) {
+		SetAuthorizationUiState(true, username);
+		return true;
+	}
+
+	String loginInput = EditUserName->Text;
+	String passwordInput = EditPassword->Text;
+	if (!PromptCredentialsDialog(loginInput, passwordInput)) {
+		ShowMessage("Авторизация отменена или данные не заполнены.");
+		return false;
+	}
+
+	EditUserName->Text = loginInput;
+	EditPassword->Text = passwordInput;
+
+	username = stdStr(loginInput);
+	password = stdStr(passwordInput);
+
+	if (!IsAuthorizedByCredentials(username, password)) {
+		SetAuthorizationUiState(false, "");
+		ShowMessage("Авторизация не пройдена. Проверьте логин и пароль.");
+		return false;
+	}
+
+	SetAuthorizationUiState(true, username);
+	return true;
+}
+
+bool TformMain::AskAndSetDecryptionOutputDir()
+{
+	String dir = edtSaveMessageDir->Text;
+	if (!SelectDirectory("Выберите папку для сохранения сообщений", "пк", dir, TSelectDirExtOpts(), 0))
+		return false;
+
+	if (dir.IsEmpty())
+		return false;
+
+	edtSaveMessageDir->Text = dir;
+	return true;
+}
+
+bool TformMain::StartAutoDecrypt(const String& cryptPath)
+{
+	ShowWindow(Handle, SW_RESTORE);
+	SetWindowPos(Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	SetForegroundWindow(Handle);
+	SetWindowPos(Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+	if (!IsCry2File(cryptPath)) {
+		ShowMessage("Указанный файл криптограммы не найден или имеет неверное расширение.");
+		return false;
+	}
+
+	if (isProcessing) {
+		ShowMessage("Сейчас выполняется другая операция. Дождитесь завершения и повторите.");
+		return false;
+	}
+
+	if (!EnsureAuthorizationForAutoDecrypt())
+		return false;
+
+	const int choice = MessageDlg(
+		"Расшифровать в ту же папку, где находится криптограмма?",
+		mtConfirmation,
+		TMsgDlgButtons() << mbYes << mbNo << mbCancel,
+		0
+	);
+	if (choice == mrCancel)
+		return false;
+
+	if (choice == mrYes) {
+		const String sameDir = ExtractFileDir(cryptPath);
+		if (sameDir.IsEmpty()) {
+			ShowMessage("Не удалось определить папку исходной криптограммы.");
+			return false;
+		}
+		edtSaveMessageDir->Text = sameDir;
+	} else {
+		if (!AskAndSetDecryptionOutputDir())
+			return false;
+	}
+
+	autoDecryptFromFileRequest = true;
+	pcMain->ActivePage = TabSheet3;
+	lstCrypts->Items->Clear();
+	lstCrypts->Items->Add(cryptPath);
+	btnDecryptClick(btnDecrypt);
+	return true;
+}
+
+void TformMain::HandleIncomingDecryptRequest(const String& cryptPath)
+{
+	if (!IsCry2File(cryptPath))
+		return;
+
+	// Выполняем после текущих сообщений UI, чтобы избежать гонок с текущими событиями.
+	TThread::Queue(nullptr, [this, cryptPath]() {
+		StartAutoDecrypt(cryptPath);
+	});
+}
+
+void TformMain::HandleStartupCryptArg()
+{
+	if (ParamCount() < 1)
+		return;
+
+	const String arg = ParamStr(1);
+	if (!IsCry2File(arg))
+		return;
+
+	HandleIncomingDecryptRequest(arg);
 }
 
 //---------------------------------------------------------------------------
@@ -380,6 +674,9 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 
         std::string username = stdStr(EditUserName->Text);
         std::string password = stdStr(EditPassword->Text);
+		const String outputDir = edtSaveMessageDir->Text;
+		const bool autoDecryptRequest = autoDecryptFromFileRequest;
+		autoDecryptFromFileRequest = false;
 
         memStatus->Lines->Clear();
 
@@ -393,6 +690,8 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 
         // Запускаем процесс в отдельном потоке
 		std::thread decryptThread([=]() {
+			bool hasErrors = false;
+			std::string lastDecryptedDir;
             try {
                 CryptoArchiveReader cryptoArchiveReader{username, password, &stopFlag, &progress};
 
@@ -418,12 +717,20 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 
                         std::string result = cryptoArchiveReader.decryptArchive(filePath);
 
+						if (result.find("успешное расшифрование") != std::string::npos) {
+							auto p1 = result.find(" - ");
+							auto p2 = result.find(" - ", p1 + 3);
+							if (p1 != std::string::npos && p2 != std::string::npos)
+								lastDecryptedDir = result.substr(p1 + 3, p2 - p1 - 3);
+						}
+
                         TThread::Synchronize(nullptr, [=]() {
                             memStatus->Lines->Add(strStd(result));
                             progress.store(0);  // Сбрасываем прогресс
 							Gauge1->Progress = 100;
                         });
                     } catch (const std::exception& e) {
+						hasErrors = true;
                         TThread::Synchronize(nullptr, [=]() {
 							memStatus->Lines->Add((filePath + " - ошибка расшифрования!").c_str());
 						});
@@ -437,8 +744,27 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
                     isProcessing = false;  // Сбрасываем флаг
 					Timer1->Enabled = false;  // Останавливаем таймер
 					UnlockForm(this);
+
+					if (autoDecryptRequest) {
+						if (!hasErrors && !stopFlag.load()) {
+							memStatus->Lines->Add("Расшифрование успешно.");
+							int openFolder = MessageDlg(
+								"Расшифрование успешно. Открыть папку с результатом?",
+								mtConfirmation,
+								TMsgDlgButtons() << mbYes << mbNo,
+								0
+							);
+							if (openFolder == mrYes) {
+								String folderToOpen = lastDecryptedDir.empty()
+									? outputDir
+									: strStd(lastDecryptedDir);
+								ShellExecuteW(nullptr, L"open", folderToOpen.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+							}
+						}
+					}
 				});
             } catch (const std::exception& e) {
+				hasErrors = true;
                 TThread::Synchronize(nullptr, [=]() {
                     MessageDlg(strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
                     btnDecrypt->Caption = "Расшифровать";  // Возвращаем текст кнопки
@@ -612,6 +938,7 @@ void __fastcall TformMain::FormShow(TObject *Sender)
         std::string displayName = extractNameBeforeUnderscore(priKey);
         lstOperators->Items->Add(displayName.c_str());
 	}
+
 }
 
 //---------------------------------------------------------------------------
@@ -635,44 +962,16 @@ void __fastcall TformMain::N1Click(TObject *Sender)
 
 void __fastcall TformMain::Timer2Timer(TObject *Sender)
 {
-
-	static auto setAutorizationStatus = [this] (const String& text, bool status)
-	{
-		lbAuto->Caption = text;
-		pcMain->Visible = status;
-		lbAuto->Visible = status;
-
-		if(!status)
-		 memStatus->Lines->Clear();
-	};
-
 	std::string username = stdStr(EditUserName->Text);
 	std::string password = stdStr(EditPassword->Text);
 
 	if (username.empty() || password.empty()) {
-
-		autoriz = false;
-		pcMain->Visible = false;
-        lbAuto->Visible = false;
-		return;
+		SetAuthorizationUiState(false, "");
+	} else {
+		SetAuthorizationUiState(IsAuthorizedByCredentials(username, password), username);
 	}
-	try {
 
-		std::string decrypted_pri_key = KeyGenerator::DecryptPrivateKey(username, password);
-
-		if (decrypted_pri_key.find("PRIVATE") != std::string::npos) {
-			// Успех: показываем окно с информационным стилем
-			auto text = "Авторизован как оператор: \"" + String{username.c_str()} + "\"";
-			setAutorizationStatus(text,true);
-
-		} else {
-			 // No
-			 setAutorizationStatus("Нет авторизации!",false);
-		}
-	} catch (const std::exception& e) {
-
-		setAutorizationStatus("Нет авторизации!",false);
-	}
+	CheckPendingDecryptFile();
 }
 
 //---------------------------------------------------------------------------
