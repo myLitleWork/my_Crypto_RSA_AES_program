@@ -1,4 +1,6 @@
-﻿#include "CryptoArchiveReader.h"
+#include "CryptoArchiveReader.h"
+#include "SystemTokenAuth.h"
+#include <stdexcept>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
@@ -16,7 +18,7 @@ namespace fs = std::filesystem;
 CryptoArchiveReader::CryptoArchiveReader(const std::string& _recipient, const std::string& _password, std::atomic<bool>* stopFlag, std::atomic<int>* progress)
     : stopRequested(stopFlag), progress(progress) {
     if (baseDecryptionDir.empty())
-        throw "Не иницилизирована базовая директория сохранения!";
+        throw std::runtime_error("Не инициализирована базовая директория сохранения!");
 
 	recipient = _recipient;
     rsaPrivateKey = loadPrivateKey(_password);
@@ -71,19 +73,19 @@ void CryptoArchiveReader::updateProgress(size_t processed, size_t total) {
 }
 std::string CryptoArchiveReader::loadPrivateKey(const std::string& password) {
 
+	// Если пароль пустой — пробуем загрузить ключ по токену (перешифрован хешем токена)
+	if (password.empty()) {
+		std::string keyByToken = SystemTokenAuth::LoadPrivateKeyWithToken(recipient);
+		if (!keyByToken.empty() && keyByToken.find("PRIVATE") != std::string::npos)
+			return keyByToken;
+		throw std::runtime_error("Ключ по токену не найден. Введите пароль или привяжите токен заново.");
+	}
+
 	std::string pri_key_filename = getExecutablePath() + "/rsa_keys/" + recipient + "_prikey_encrypted.pem";
 
 	if (!std::filesystem::exists(pri_key_filename)) {
-		throw "Закрытый RSA-ключ оператора '" + recipient + "'  - не найден!";
+		throw std::runtime_error("Закрытый RSA-ключ оператора '" + recipient + "' не найден. Проверьте логин и наличие файла " + pri_key_filename);
 	}
-
-	// Загрузка и расшифровка закрытого ключа с использованием AES и пароля
-
-	std::ifstream pri_key_file(pri_key_filename, std::ios::binary);
-	std::stringstream pri_key_stream;
-	pri_key_stream << pri_key_file.rdbuf();
-
-	std::string encrypted_pri_key = pri_key_stream.str();
 
 	std::string decrypted_pri_key = KeyGenerator::DecryptPrivateKey(recipient, password);
 

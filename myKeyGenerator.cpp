@@ -1,4 +1,4 @@
-﻿#include "myKeyGenerator.h"
+#include "myKeyGenerator.h"
 #include "myCrypto.h"
 #include <fstream>
 #include <stdexcept>
@@ -73,6 +73,23 @@ std::string KeyGenerator::DecryptPrivateKey(const std::string& username, const s
     }
 
     return decrypted_pri_key;
+}
+
+bool KeyGenerator::EncryptAndSavePrivateKey(const std::string& username, const std::string& password, const std::string& decryptedPrivateKey)
+{
+    if (username.empty() || decryptedPrivateKey.empty())
+        return false;
+
+    std::string adjusted_password = AdjustPasswordToKeyLength(password, 32);
+    std::string encrypted = myCrypto::AESEncrypt(decryptedPrivateKey, adjusted_password);
+    if (encrypted.empty())
+        return false;
+
+    if (!fs::exists(getExecutablePath() + "/rsa_keys"))
+        fs::create_directory(getExecutablePath() + "/rsa_keys");
+
+    SaveKeyToFile(username + "_prikey_encrypted.pem", encrypted);
+    return true;
 }
 
 std::string KeyGenerator::AdjustPasswordToKeyLength(const std::string& password, size_t required_length) {
