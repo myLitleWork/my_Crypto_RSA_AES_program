@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Конспект: SystemTokenAuth — детальный разбор</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css">
+	<style>
+		body { font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 920px; margin: 0 auto; padding: 20px; line-height: 1.65; color: #333; }
+		h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px; }
+		h3 { color: #34495e; margin-top: 1.8em; }
+		h4 { color: #666; font-size: 1.1em; margin-top: 1.2em; }
+		pre { margin: 12px 0; }
+		pre code { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9em; padding: 15px; background: #ffffff; border: 1px solid #ddd; border-left: 4px solid #3498db; display: block; overflow-x: auto; line-height: 1.4; }
+		.note { background: #e8f4fc; border-left: 4px solid #3498db; padding: 12px 16px; margin: 12px 0; border-radius: 0 4px 4px 0; }
+		.warning { background: #fef9e7; border-left: 4px solid #f39c12; padding: 12px 16px; margin: 12px 0; border-radius: 0 4px 4px 0; }
+		.success { background: #eafaf1; border-left: 4px solid #27ae60; padding: 12px 16px; margin: 12px 0; border-radius: 0 4px 4px 0; }
+		hr { border: none; border-top: 1px solid #ddd; margin: 28px 0; }
+		ul, ol { padding-left: 1.6em; margin: 0.5em 0; }
+		li { margin: 0.35em 0; }
+		table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.95em; }
+		th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; }
+		th { background: #f0f0f0; }
+		code { background: #f5f5f5; padding: 1px 4px; border-radius: 2px; font-family: Consolas, monospace; }
+		.ln { color: #888; user-select: none; }
+	</style>
+</head>
+<body>
+
+<h2>Конспект: модуль SystemTokenAuth — детальный разбор</h2>
+<p>Модуль реализует <strong>привязку авторизации к конкретному компьютеру</strong>: пользователь может «запомнить этот ПК», и при следующем запуске приложение автоматически считает его авторизованным — но только на этом же ПК и под этой же учётной записью Windows.</p>
+
+<hr>
+
+<h3>1. Назначение и контекст</h3>
+
+<h4>Проблема/Контекст</h4>
+<p>В приложении ShifRator3 нужна возможность «Войти на этом компьютере» (аналог «Запомнить меня» в веб-формах). При этом:</p>
+<ul>
+	<li>Токен не должен действовать на другом ПК — иначе копирование одного файла дало бы доступ с любого компьютера.</li>
+	<li>Токен не должен действовать под другой учётной записью Windows на том же ПК — иначе один файл открывал бы доступ всем пользователям машины.</li>
+</ul>
+
+<h4>Решение</h4>
+<p>В файл сохраняются два значения: <strong>отпечаток текущей системы</strong> (fingerprint) и <strong>имя пользователя приложения</strong>. Отпечаток вычисляется из стабильных данных Windows (серийный номер тома C:\, имя компьютера, имя пользователя ОС). При следующем запуске отпечаток вычисляется снова и сравнивается с сохранённым. Совпадение означает «это тот же ПК и тот же пользователь ОС» — тогда считаем пользователя приложения авторизованным под сохранённым именем.</p>
+
+<div class="note">
+	<strong>Ключевая идея:</strong> отпечаток — это хеш от строки вида <code>volSerial|compName|userName</code>. На другом ПК или под другим пользователем Windows эта строка будет другой, хеш изменится, и сохранённый токен не пройдёт проверку.
+</div>
+
+<hr>
+
+<h3>2. Подключаемые заголовки</h3>
+
+<h4>Зачем каждый include?</h4>
+<table>
+	<thead><tr><th>Файл</th><th>Назначение</th></tr></thead>
+	<tbody>
+		<tr><td><code>SystemTokenAuth.h</code></td><td>Объявления функций модуля и тип возврата <code>std::pair&lt;bool, std::string&gt;</code>.</td></tr>
+		<tr><td><code>windows.h</code></td><td>GetVolumeInformationW, GetComputerNameW, GetUserNameW, GetTempPathA, CreateDirectoryW, DeleteFileA, DWORD, MAX_PATH и т.д.</td></tr>
+		<tr><td><code>shlobj.h</code></td><td>SHGetFolderPathW и константа CSIDL_LOCAL_APPDATA.</td></tr>
+		<tr><td><code>fstream</code></td><td>std::ifstream, std::ofstream для чтения/записи файла токена.</td></tr>
+		<tr><td><code>sstream</code></td><td>std::ostringstream для сборки строк (например, число в строку, hex).</td></tr>
+		<tr><td><code>iomanip</code></td><td>std::setfill, std::setw для форматирования hex-строки с ведущими нулями.</td></tr>
+		<tr><td><code>vector</code></td><td>Не используется напрямую в показанном коде; может использоваться в алгоритмах или при доработках.</td></tr>
+		<tr><td><code>algorithm</code></td><td>std::remove_if при очистке строк от символов <code>\r</code> и <code>\n</code>.</td></tr>
+	</tbody>
+</table>
+
+<hr>
+
+<h3>3. Анонимный namespace и константы</h3>
+
+<h4>Синтаксис <code>namespace { ... }</code></h4>
+<p>Всё, что объявлено внутри <code>namespace { ... }</code>, имеет <strong>внутреннюю линковку</strong>: эти имена видны только в данном .cpp файле. С другими единицами трансляции они не конфликтуют. Функции <code>WideToNarrow</code>, <code>Fnv1aHash</code>, <code>ToHex</code> и константы <code>TOKEN_FILENAME</code>, <code>TOKEN_SEP</code> — детали реализации, в заголовке они не объявляются.</p>
+
+<h4>Константы</h4>
+<ul>
+	<li><code>TOKEN_FILENAME = L"ShifRator3_system_token.dat"</code> — имя файла в широких символах (L""), т.к. путь потом собирается из широких строк Windows API.</li>
+	<li><code>TOKEN_SEP = '\n'</code> — разделитель первой и второй строки в файле. Первая строка — отпечаток, вторая — имя пользователя. <code>std::getline(f, s, '\n')</code> читает до первого <code>\n</code>.</li>
+</ul>
+
+<hr>
+
+<h3>4. WideToNarrow — преобразование wstring → string (UTF-8)</h3>
+
+<h4>Проблема/Контекст</h4>
+<p>Функции Windows API (GetComputerNameW, GetUserNameW и т.д.) возвращают строки в виде <code>wchar_t*</code> (UTF-16 под Windows). Для записи в текстовый файл и для передачи в Fnv1aHash нужна байтовая строка. В коде используется UTF-8: одна и та же строка даёт одни и те же байты независимо от локали, и при необходимости файл можно просмотреть в любом редакторе.</p>
+
+<h4>Сигнатура и пошаговый разбор</h4>
+
+<pre><code class="language-cpp">std::string WideToNarrow(const std::wstring& ws)
+{
+	if (ws.empty()) return {};
+	int len = WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), (int)ws.size(), nullptr, 0, nullptr, nullptr);
+	if (len <= 0) return {};
+	std::string s(static_cast<size_t>(len), '\0');
+	WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), (int)ws.size(), &s[0], len, nullptr, nullptr);
+	return s;
+}</code></pre>
+
+<h4>Параметры WideCharToMultiByte (первый вызов)</h4>
+<p>Объявление (упрощённо):</p>
+<pre><code class="language-cpp">int WideCharToMultiByte(
+    UINT   CodePage,     // CP_UTF8 = 65001
+    DWORD  dwFlags,      // 0 — обычное преобразование
+    LPCWCH lpWideCharStr,
+    int    cchWideChar,
+    LPSTR  lpMultiByteStr,  // nullptr — только посчитать длину
+    int    cbMultiByte,     // 0
+    LPCCH  lpDefaultChar,   // nullptr
+    LPBOOL lpUsedDefaultChar // nullptr
+);</code></pre>
+<ul>
+	<li><code>CP_UTF8</code> (65001) — целевая кодовая страница: на выходе получаем UTF-8.</li>
+	<li><code>ws.c_str()</code> — указатель на широкие символы; <code>(int)ws.size()</code> — количество широких символов (не байт). Приведение нужно, т.к. API принимает <code>int</code>.</li>
+	<li><code>lpMultiByteStr = nullptr</code> и <code>cbMultiByte = 0</code> — буфер не передаём. Функция возвращает <strong>нужное количество байт</strong> для результата (включая завершающий нуль, если он запрашивается; при нулевом буфере возвращаемое значение — размер без нуля или с ним в зависимости от версии — в данном использовании это «достаточный размер»).</li>
+</ul>
+<p>В коде возвращаемое значение трактуется как «сколько байт выделить». Если <code>len <= 0</code>, преобразование не удалось (например, неверные данные) — возвращаем пустую строку.</p>
+
+<h4>Второй вызов WideCharToMultiByte</h4>
+<p>Создаётся строка <code>s</code> из <code>len</code> символов <code>'\0'</code>. Затем тот же вызов, но с буфером <code>&s[0]</code> и размером <code>len</code>: функция заполняет буфер байтами UTF-8. Результат не проверяется повторно: при успешном первом вызове второй обычно тоже успешен. Строка <code>s</code> содержит ровно <code>len</code> байт (без завершающего нуля в размере; для <code>std::string</code> это нормально).</p>
+
+<div class="warning">Важно: в C++11 и новее запись в <code>&s[0]</code> для непустой <code>std::string</code> допустима и не меняет размер строки. Размер остаётся <code>len</code>; фактическое содержимое — то, что записал WideCharToMultiByte. Если бы API дописывал нуль-терминатор, он мог бы оказаться внутри строки; в данном использовании длина подобрана так, что записывается ровно нужное количество байт.</div>
+
+<hr>
+
+<h3>5. Fnv1aHash — детерминированный хеш (FNV-1a)</h3>
+
+<h4>Зачем хеш?</h4>
+<p>Отпечаток системы должен быть коротким и фиксированной длины, но однозначно зависеть от строки <code>volSerial|compName|userName</code>. Хеш-функция превращает строку произвольной длины в 64 бита. FNV-1a — быстрая, простая, детерминированная; криптостойкость не требуется, нужна лишь устойчивость к случайным изменениям данных.</p>
+
+<h4>Код с пояснениями по строкам</h4>
+
+<pre><code class="language-cpp">uint64_t Fnv1aHash(const std::string& s)
+{
+	uint64_t h = 14695981039346656037ULL; // FNV offset basis для 64-bit
+	for (unsigned char c : s)
+		h = (h ^ c) * 1099511628211ULL;   // FNV prime для 64-bit
+	return h;
+}</code></pre>
+
+<ul>
+	<li><strong>14695981039346656037ULL</strong> — стандартная константа FNV offset basis для 64-битного варианта. Начальное значение «нейтральное» для алгоритма.</li>
+	<li><strong>unsigned char c</strong> — обходим строку по байтам. Приведение к <code>unsigned char</code> гарантирует неотрицательное значение 0..255 и одинаковое поведение на платформах с signed char.</li>
+	<li><strong>h = (h ^ c) * 1099511628211ULL</strong> — один шаг FNV-1a: сначала XOR текущего хеша с байтом, затем умножение на FNV prime (1099511628211). Арифметика беззнаковая, переполнение идёт по модулю 2<sup>64</sup> — это предусмотрено стандартом.</li>
+</ul>
+
+<h4>Пример трассировки (упрощённо)</h4>
+<p>Пусть <code>s = "A"</code> (один байт 0x41). Тогда:</p>
+<ul>
+	<li><code>h0 = 14695981039346656037</code>;</li>
+	<li><code>h1 = (h0 ^ 0x41) * 1099511628211</code> — одно число, всегда одно и то же для <code>"A"</code>.</li>
+</ul>
+<p>Для любой другой строки (например, <code>"123|DESKTOP-ABC|Ivan"</code>) результат будет другой, но для той же строки — всегда одинаковый.</p>
+
+<div class="note">Итог: одна и та же строка <code>raw</code> всегда даёт один и тот же <code>uint64_t</code>, что и нужно для сравнения отпечатков.</div>
+
+<hr>
+
+<h3>6. ToHex — число в 16-ричную строку фиксированной длины</h3>
+
+<h4>Назначение</h4>
+<p>Хеш — значение типа <code>uint64_t</code>. Его нужно сохранять в файл и сравнивать как строку. Перевод в hex даёт ровно 16 символов (64 бита / 4 = 16 hex-цифр). Фиксированная длина удобна при чтении и разборе файла.</p>
+
+<pre><code class="language-cpp">std::string ToHex(uint64_t v)
+{
+	std::ostringstream os;
+	os << std::hex << std::setfill('0') << std::setw(16) << v;
+	return os.str();
+}</code></pre>
+
+<h4>Разбор манипуляторов</h4>
+<ul>
+	<li><code>std::hex</code> — вывод в шестнадцатеричном формате (цифры 0–9, a–f).</li>
+	<li><code>std::setfill('0')</code> — символ заполнения при недостаточной ширине — ноль.</li>
+	<li><code>std::setw(16)</code> — минимальная ширина поля 16 символов. Если число даёт меньше 16 hex-цифр (например, 0 → <code>"0"</code>), слева дополняется нулями: <code>0000000000000000</code>.</li>
+</ul>
+<p>Пример: <code>v = 0x1234</code> → строка <code>"0000000000001234"</code>. Так отпечаток в файле всегда имеет длину 16 символов.</p>
+
+<hr>
+
+<h3>7. GetSystemFingerprint() — построчное описание</h3>
+
+<h4>Идея</h4>
+<p>Собираем строку <code>raw = volSerial + "|" + compName + "|" + userName</code>, затем <code>return ToHex(Fnv1aHash(raw))</code>. Любой из трёх компонентов может быть пустым при ошибке API (тогда в <code>raw</code> останутся только разделители или часть данных).</p>
+
+<h4>Блок 1: серийный номер тома C:\</h4>
+
+<pre><code class="language-cpp">DWORD volSerial = 0, maxLen = 0;
+wchar_t volName[MAX_PATH + 1] = {};
+if (GetVolumeInformationW(L"C:\\", volName, MAX_PATH, &volSerial, &maxLen, nullptr, nullptr, 0))
+{
+	std::ostringstream os;
+	os << volSerial;
+	raw += os.str();
+}
+raw += "|";</code></pre>
+
+<p><strong>GetVolumeInformationW</strong> — объявление (упрощённо):</p>
+<pre><code class="language-cpp">BOOL GetVolumeInformationW(
+    LPCWSTR lpRootPathName,   // L"C:\\" — корень тома
+    LPWSTR  lpVolumeNameBuffer,
+    DWORD   nVolumeNameSize,  // MAX_PATH
+    LPDWORD lpVolumeSerialNumber,  // сюда пишется серийный номер
+    LPDWORD lpMaximumComponentLength,
+    LPDWORD lpFileSystemFlags,
+    LPWSTR  lpFileSystemNameBuffer,
+    DWORD   nFileSystemNameSize
+);</code></pre>
+<ul>
+	<li><code>lpVolumeSerialNumber</code> — указатель на <code>volSerial</code>; после успешного вызова в нём серийный номер тома (например, 0xA1B2C3D4). Передаём <code>nullptr</code> для параметров, которые не нужны (<code>lpFileSystemFlags</code>, имена ФС и т.д.).</li>
+	<li>Если вызов вернул TRUE, <code>volSerial</code> преобразуется в десятичную строку через <code>ostringstream</code> и добавляется к <code>raw</code>. Если вызов не удался (например, нет доступа к C:\), к <code>raw</code> добавляется только <code>"|"</code>.</li>
+</ul>
+
+<h4>Блок 2: имя компьютера</h4>
+
+<pre><code class="language-cpp">wchar_t compName[MAX_COMPUTERNAME_LENGTH + 1] = {};
+DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
+if (GetComputerNameW(compName, &size))
+	raw += WideToNarrow(compName);
+raw += "|";</code></pre>
+
+<p><strong>GetComputerNameW(compName, &size)</strong>: <code>size</code> при вызове — размер буфера в символах (включая нуль); после вызова в <code>size</code> может быть записано реальное количество записанных символов. Результат в UTF-16 — переводим в UTF-8 через <code>WideToNarrow</code> и добавляем к <code>raw</code>. Разделитель <code>"|"</code> добавляется в любом случае.</p>
+
+<h4>Блок 3: имя пользователя Windows</h4>
+
+<pre><code class="language-cpp">wchar_t userBuf[256] = {};
+DWORD userLen = 256;
+if (GetUserNameW(userBuf, &userLen))
+	raw += WideToNarrow(userBuf);
+
+uint64_t h = Fnv1aHash(raw);
+return ToHex(h);</code></pre>
+
+<p><strong>GetUserNameW(userBuf, &userLen)</strong>: аналогично — буфер и размер; после вызова в буфере имя текущего пользователя. Добавляем к <code>raw</code> в UTF-8 (или не добавляем при ошибке). Затем хешируем <code>raw</code> и возвращаем его hex-представление.</p>
+
+<h4>Пример значения raw и результата</h4>
+<p>Пусть <code>volSerial = 0x1A2B3C4D</code>, имя компьютера <code>DESKTOP-XYZ</code>, пользователь <code>Ivan</code>. Тогда:</p>
+<p><code>raw = "439041101|DESKTOP-XYZ|Ivan"</code> (серийный номер в десятичном виде).</p>
+<p>После <code>Fnv1aHash(raw)</code> и <code>ToHex(h)</code> получится строка из 16 hex-символов, например <code>a1b2c3d4e5f67890</code>. На другом ПК или под другим пользователем <code>raw</code> будет другой → хеш другой → отпечаток не совпадёт.</p>
+
+<div class="warning">Если пользователь переименует компьютер, сменит том или войдёт под другой учётной записью Windows, отпечаток изменится и сохранённый токен перестанет подходить. Это задуманное поведение «привязки к ПК и пользователю ОС».</div>
+
+<hr>
+
+<h3>8. GetTokenFilePath() — путь к файлу токена</h3>
+
+<h4>Цель</h4>
+<p>Файл должен лежать в каталоге приложения внутри профиля пользователя, чтобы разные пользователи Windows имели разные токены. Используется <strong>Local AppData</strong>: <code>%LOCALAPPDATA%\ShifRator3\ShifRator3_system_token.dat</code>.</p>
+
+<pre><code class="language-cpp">wchar_t buf[MAX_PATH];
+if (!SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, buf)))
+{
+	char temp[MAX_PATH];
+	if (GetTempPathA(MAX_PATH, temp))
+		return std::string(temp) + "ShifRator3\\";
+	return "";
+}
+std::wstring folder = std::wstring(buf) + L"\\ShifRator3\\";
+CreateDirectoryW(folder.c_str(), nullptr);
+return WideToNarrow(folder) + WideToNarrow(TOKEN_FILENAME);</code></pre>
+
+<h4>SHGetFolderPathW</h4>
+<ul>
+	<li><code>hwnd = nullptr</code> — окно не используется.</li>
+	<li><code>CSIDL_LOCAL_APPDATA</code> — идентификатор папки «Local AppData» (например, <code>C:\Users\Ivan\AppData\Local</code>).</li>
+	<li><code>buf</code> — буфер, куда записывается путь в широких символах.</li>
+</ul>
+<p><code>SUCCEEDED(hr)</code> проверяет код возврата (HRESULT). Если папку получить не удалось, переходим к запасному варианту.</p>
+
+<h4>Запасной путь (GetTempPathA)</h4>
+<p>Если Local AppData недоступен, используется временная папка системы (<code>GetTempPathA</code> возвращает путь с завершающим <code>\</code>). Код возвращает <code>temp + "ShifRator3\\"</code> — это путь только к каталогу, без имени файла. В основной ветке ниже возвращается полный путь к файлу: <code>folder + TOKEN_FILENAME</code>. В fallback имени файла нет, поэтому при открытии <code>std::ifstream f(path)</code> в <code>TryAuthorizeBySystemToken</code> фактически передаётся путь к папке — файл открыться не сможет. Для полной корректности в fallback стоит возвращать <code>std::string(temp) + "ShifRator3\\" + "ShifRator3_system_token.dat"</code> (или использовать аналог <code>WideToNarrow(TOKEN_FILENAME)</code>).</p>
+
+<h4>Создание каталога и формирование пути к файлу</h4>
+<p><code>folder = buf + L"\\ShifRator3\\"</code> — полный путь к подкаталогу ShifRator3. <code>CreateDirectoryW(folder.c_str(), nullptr)</code> создаёт каталог, если его нет; если уже есть, GetLastError() вернёт ERROR_ALREADY_EXISTS, но это не проверяется — для логики достаточно того, что каталог есть. Возвращаем <code>WideToNarrow(folder) + WideToNarrow(TOKEN_FILENAME)</code> — полный путь к файлу в виде узкой строки (UTF-8), например <code>C:\Users\Ivan\AppData\Local\ShifRator3\ShifRator3_system_token.dat</code> (в UTF-8 представлении).</p>
+
+<div class="note">Возвращается именно путь к <strong>файлу</strong>, а не только к каталогу — его можно сразу передать в <code>std::ifstream</code> / <code>std::ofstream</code> и в <code>DeleteFileA</code>.</div>
+
+<hr>
+
+<h3>9. TryAuthorizeBySystemToken() — детальный разбор</h3>
+
+<h4>Назначение</h4>
+<p>Вызывается при старте приложения. Читает файл токена, извлекает сохранённый отпечаток и имя пользователя, сравнивает отпечаток с текущим. Возвращает <code>std::pair&lt;bool, std::string&gt;</code>: успех/неуспех и имя пользователя (или пустая строка).</p>
+
+<h4>Шаг 1: путь и открытие файла</h4>
+
+<pre><code class="language-cpp">std::string path = GetTokenFilePath();
+if (path.empty()) return {false, ""};
+
+std::ifstream f(path, std::ios::in);
+if (!f.is_open()) return {false, ""};</code></pre>
+
+<p>Если путь пустой (не удалось получить ни AppData, ни temp) или файл не открылся (нет файла, нет прав) — сразу возврат <code>{false, ""}</code>.</p>
+
+<h4>Шаг 2: чтение двух строк</h4>
+
+<pre><code class="language-cpp">std::string storedFingerprint, username;
+if (!std::getline(f, storedFingerprint, TOKEN_SEP)) return {false, ""};
+if (!std::getline(f, username)) { /* username может быть пустым */ }
+f.close();</code></pre>
+
+<ul>
+	<li><code>std::getline(f, storedFingerprint, TOKEN_SEP)</code> — читает из потока <code>f</code> в строку <code>storedFingerprint</code> до разделителя <code>TOKEN_SEP</code> (<code>'\n'</code>). Разделитель из потока извлекается, в строку не попадает. Если прочитать не удалось (файл пустой или только перевод строки), getline вернёт false — выходим с <code>{false, ""}</code>.</li>
+	<li><code>std::getline(f, username)</code> — читает вторую строку до следующего <code>\n</code> (по умолчанию разделитель — <code>'\n'</code>). Если второй строки нет (файл содержал только одну строку), <code>username</code> останется пустым, getline может вернуть false — это допускается комментарием: «username может быть пустым».</li>
+</ul>
+
+<h4>Шаг 3: очистка от \r и \n</h4>
+
+<pre><code class="language-cpp">storedFingerprint.erase(std::remove_if(storedFingerprint.begin(), storedFingerprint.end(),
+	[](char c) { return c == '\r' || c == '\n'; }), storedFingerprint.end());
+username.erase(std::remove_if(username.begin(), username.end(),
+	[](char c) { return c == '\r' || c == '\n'; }), username.end());</code></pre>
+
+<p><strong>std::remove_if(beg, end, pred)</strong> сдвигает «нужные» элементы в начало диапазона и возвращает итератор на новый логический конец. Сами данные после этого «конца» не стираются. Вызов <code>erase(newEnd, end)</code> удаляет хвост контейнера. В результате из строки удаляются все символы <code>\r</code> и <code>\n</code> (на случай, если файл был записан с \r\n или прочитан на другой ОС). Отпечаток должен быть ровно 16 hex-символов без переводов строк.</p>
+
+<h4>Шаг 4: сравнение отпечатков</h4>
+
+<pre><code class="language-cpp">std::string current = GetSystemFingerprint();
+if (storedFingerprint != current) return {false, ""};
+return {true, username};</code></pre>
+
+<p>Вычисляем текущий отпечаток системы. Если он не совпадает с сохранённым — токен не для этой системы или пользователя ОС → <code>{false, ""}</code>. Иначе — авторизация по токену успешна, возвращаем <code>{true, username}</code>.</p>
+
+<div class="success">Итог: успех только при наличии файла, двух строках в нём, совпадении отпечатка и (опционально) непустом имени пользователя. Пустое имя после проверки отпечатка допустимо — приложение может трактовать его по своему усмотрению.</div>
+
+<hr>
+
+<h3>10. SaveSystemToken(username)</h3>
+
+<h4>Когда вызывать</h4>
+<p>После успешной авторизации по логину/паролю, если пользователь включил опцию «Запомнить на этом компьютере».</p>
+
+<pre><code class="language-cpp">std::string path = GetTokenFilePath();
+if (path.empty()) return false;
+
+std::ofstream f(path, std::ios::out | std::ios::trunc);
+if (!f.is_open()) return false;
+
+f << GetSystemFingerprint() << TOKEN_SEP << username << "\n";
+f.close();
+return true;</code></pre>
+
+<h4>Режимы открытия</h4>
+<ul>
+	<li><code>std::ios::out</code> — вывод (запись).</li>
+	<li><code>std::ios::trunc</code> — при открытии обрезать файл до нуля байт. Если файл существовал, старое содержимое теряется — записывается только новый отпечаток и новый username.</li>
+</ul>
+<p>Порядок записи: сначала отпечаток, затем <code>TOKEN_SEP</code> (<code>'\n'</code>), затем <code>username</code>, затем ещё один <code>"\n"</code>. Так формат совпадает с тем, что читает <code>TryAuthorizeBySystemToken</code>: первая строка — отпечаток, вторая — username.</p>
+
+<hr>
+
+<h3>11. ClearSystemToken()</h3>
+
+<pre><code class="language-cpp">void ClearSystemToken()
+{
+	std::string path = GetTokenFilePath();
+	if (path.empty()) return;
+	DeleteFileA(path.c_str());
+}</code></pre>
+
+<p><strong>DeleteFileA</strong> (WinAPI) удаляет файл по пути. Возвращаемое значение не проверяется: если файла нет или нет прав — токена всё равно нет, повторный вызов TryAuthorizeBySystemToken просто не найдёт файл. Логика «удалить токен» от этого не страдает.</p>
+
+<hr>
+
+<h3>12. Сводка по использованию в приложении</h3>
+
+<h4>Типичный сценарий</h4>
+<ol>
+	<li><strong>Старт приложения:</strong> вызвать <code>TryAuthorizeBySystemToken()</code>. Если вернулось <code>(true, username)</code> — считать пользователя авторизованным под <code>username</code>; иначе показать форму входа.</li>
+	<li><strong>Успешный вход по паролю + галочка «Запомнить»:</strong> вызвать <code>SaveSystemToken(username)</code>.</li>
+	<li><strong>Выход / снять «Запомнить»:</strong> вызвать <code>ClearSystemToken()</code>.</li>
+</ol>
+
+<div class="success">
+	<strong>Итог:</strong> модуль SystemTokenAuth реализует привязку авторизации к ПК и пользователю Windows через отпечаток системы (серийный номер тома C:\, имя компьютера, имя пользователя ОС), хранение отпечатка и имени в файле в Local AppData и проверку при запуске. Токен не переносится на другой компьютер и не подходит под другой учётной записью Windows. Конспект разбирает каждую функцию, параметры Windows API, формат файла и краевые случаи.
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+</body>
+</html>
