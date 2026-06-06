@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 
 #ifndef mainFormH
 #define mainFormH
@@ -53,6 +53,7 @@ __published:	// IDE-managed Components
 	TOpenDialog *OpenDialog1;
 	TActionList *actList;
 	TAction *actGenKeys;
+	TAction *actRemoveToken;
 	TLabel *lbCryptoOutDir;
 	TSaveDialog *SaveDialog1;
 	TEdit *edtDirCrypts;
@@ -80,6 +81,7 @@ __published:	// IDE-managed Components
 	void __fastcall N1Click(TObject *Sender);
 	void __fastcall Timer2Timer(TObject *Sender);
 	void __fastcall actGenKeysExecute(TObject *Sender);
+	void __fastcall actRemoveTokenExecute(TObject *Sender);
 	void __fastcall edtDirCryptsDblClick(TObject *Sender);
 	void __fastcall edtSaveMessageDirDblClick(TObject *Sender);
 	void __fastcall pcMainChange(TObject *Sender);
@@ -88,6 +90,8 @@ __published:	// IDE-managed Components
 	void __fastcall delOperatorClick(TObject *Sender);
 	void __fastcall memTextChange(TObject *Sender);
 	void __fastcall Timer1Timer(TObject *Sender);
+	void __fastcall EditUserNameEnter(TObject *Sender);
+	void __fastcall DialogShowSwitchKeyboard(TObject *Sender);
 private:	// User declarations
 
 	std::map<std::string, CryptoArchiveCreator> mapCryptoArchiveCreators;
@@ -95,6 +99,8 @@ private:	// User declarations
 	bool IsCry2File(const String& filePath) const;
 	bool IsAuthorizedByCredentials(const std::string& username, const std::string& password) const;
 	bool PromptCredentialsDialog(String& username, String& password);
+	/// Диалог ввода нового пароля при снятии привязки токена (пароль + подтверждение)
+	bool PromptNewPasswordForUnbind(String& newPassword);
 	void SetAuthorizationUiState(bool authorized, const std::string& username);
 	bool EnsureAuthorizationForAutoDecrypt();
 	bool AskAndSetDecryptionOutputDir();
@@ -114,8 +120,13 @@ public:		// User declarations
 	void __fastcall UnlockForm(TWinControl* parentControl);
 	void __fastcall LockFormExceptStopButton(TWinControl* parentControl);
 
+	/// Снять привязку авторизации к этому компьютеру (удалить системный токен). Можно вызвать из кнопки/меню.
+	void UnbindSystemToken();
+
 	bool autoDecryptFromFileRequest = false;
 	bool isProcessing = false;
+	/// Предложение привязать токен уже показывалось в этой сессии (при авторизации с главной формы)
+	bool offeredBindTokenThisSession = false;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TformMain *formMain;

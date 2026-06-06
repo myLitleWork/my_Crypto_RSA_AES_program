@@ -20,8 +20,11 @@
 #include "FileCtrl.hpp"
 #include "StreamWriter.h"
 #include "CryptoArchiveReader.h"
+#include "SystemTokenAuth.h"
 #include <cctype>
 #include <regex>
+#include <imm.h>
+#pragma comment(lib, "imm32.lib")
 
 #include <atomic>
 #include <thread>
@@ -51,6 +54,35 @@ std::wstring GetAppDataFolder()
 std::wstring GetRequestFilePath()
 {
 	return GetAppDataFolder() + L"ShifRator3_request.txt";
+}
+
+void SwitchToEnglishKeyboard()
+{
+	HKL hkl = LoadKeyboardLayout(L"00000409", KLF_ACTIVATE);
+	if (hkl != NULL) {
+		ActivateKeyboardLayout(hkl, KLF_ACTIVATE);
+	}
+}
+
+void RegisterCry2FileAssociation()
+{
+	wchar_t exePath[MAX_PATH] = {};
+	if (GetModuleFileNameW(nullptr, exePath, MAX_PATH) == 0)
+		return;
+	std::wstring cmd = std::wstring(L"\"") + exePath + L"\" \"%1\"";
+
+	HKEY hKey = nullptr;
+	if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Classes\\.cry2", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)
+		return;
+	RegSetValueExW(hKey, nullptr, 0, REG_SZ, (const BYTE*)L"ShifRator3.cry2", 34);
+	RegCloseKey(hKey);
+
+	if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Classes\\ShifRator3.cry2\\shell\\open\\command", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)
+		return;
+	RegSetValueExW(hKey, nullptr, 0, REG_SZ, (const BYTE*)cmd.c_str(), (DWORD)((cmd.size() + 1) * sizeof(wchar_t)));
+	RegCloseKey(hKey);
+
+	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
 }
 }
 
@@ -328,7 +360,8 @@ bool TformMain::PromptCredentialsDialog(String& username, String& password)
 		btnCancel->Top = 182;
 		btnCancel->Width = 80;
 
-		dialog->ActiveControl = edtLogin;
+		dialog->ActiveControl = username.IsEmpty() ? (TWinControl*)edtLogin : (TWinControl*)edtPassword;
+		dialog->OnShow = (TNotifyEvent)&(this->DialogShowSwitchKeyboard);
 
 		if (dialog->ShowModal() != mrOk)
 			return false;
@@ -346,7 +379,10 @@ void TformMain::SetAuthorizationUiState(bool authorized, const std::string& user
 	autoriz = authorized;
 
 	if (authorized) {
-		lbAuto->Caption = "Авторизован как оператор: \"" + strStd(username) + "\"";
+		if (username == "Система")
+			lbAuto->Caption = "Авторизован по системному токену (привязан к этому ПК)";
+		else
+			lbAuto->Caption = "Авторизован как оператор: \"" + strStd(username) + "\"";
 		pcMain->Visible = true;
 		lbAuto->Visible = true;
 		return;
@@ -360,18 +396,20 @@ void TformMain::SetAuthorizationUiState(bool authorized, const std::string& user
 
 bool TformMain::EnsureAuthorizationForAutoDecrypt()
 {
-	// Если пользователь уже авторизован в текущем сеансе, не спрашиваем повторно.
-	if (autoriz && !EditUserName->Text.IsEmpty() && !EditPassword->Text.IsEmpty())
-		return true;
-
 	std::string username = stdStr(EditUserName->Text);
 	std::string password = stdStr(EditPassword->Text);
 
-	if (IsAuthorizedByCredentials(username, password)) {
+	// Уже авторизован по токену — ключ расшифровывается хешем токена, диалог не нужен
+	if (autoriz && !username.empty())
+		return true;
+
+	// В форме есть логин и пароль — проверяем
+	if (!username.empty() && !password.empty() && IsAuthorizedByCredentials(username, password)) {
 		SetAuthorizationUiState(true, username);
 		return true;
 	}
 
+	const bool hadTokenAuth = autoriz;
 	String loginInput = EditUserName->Text;
 	String passwordInput = EditPassword->Text;
 	if (!PromptCredentialsDialog(loginInput, passwordInput)) {
@@ -381,7 +419,6 @@ bool TformMain::EnsureAuthorizationForAutoDecrypt()
 
 	EditUserName->Text = loginInput;
 	EditPassword->Text = passwordInput;
-
 	username = stdStr(loginInput);
 	password = stdStr(passwordInput);
 
@@ -392,6 +429,16 @@ bool TformMain::EnsureAuthorizationForAutoDecrypt()
 	}
 
 	SetAuthorizationUiState(true, username);
+
+	// Предложить привязать токен только если ещё нет (не показывать повторно при входе по токену)
+	if (!hadTokenAuth) {
+		int bind = MessageDlg("Привязать авторизацию к этому компьютеру?\nТогда вход будет выполняться автоматически на этом ПК без ввода пароля.", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+		if (bind == mrYes) {
+			std::string decKey = KeyGenerator::DecryptPrivateKey(username, password);
+			SystemTokenAuth::SaveSystemToken(username, decKey);
+		}
+	}
+
 	return true;
 }
 
@@ -731,8 +778,14 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
                         });
                     } catch (const std::exception& e) {
 						hasErrors = true;
+						std::string errMsg = std::string(filePath) + " - ошибка расшифрования: " + e.what();
+                        TThread::Synchronize(nullptr, [this, errMsg]() {
+							memStatus->Lines->Add(strStd(errMsg));
+						});
+					} catch (...) {
+						hasErrors = true;
                         TThread::Synchronize(nullptr, [=]() {
-							memStatus->Lines->Add((filePath + " - ошибка расшифрования!").c_str());
+							memStatus->Lines->Add((filePath + " - ошибка расшифрования (ключ не найден или неверный пароль)").c_str());
 						});
 					}
 
@@ -765,11 +818,24 @@ void __fastcall TformMain::btnDecryptClick(TObject *Sender)
 				});
             } catch (const std::exception& e) {
 				hasErrors = true;
-                TThread::Synchronize(nullptr, [=]() {
-                    MessageDlg(strStd(std::string{e.what()}), mtError, TMsgDlgButtons() << mbOK, 0);
-                    btnDecrypt->Caption = "Расшифровать";  // Возвращаем текст кнопки
-                    isProcessing = false;  // Сбрасываем флаг
-					Timer1->Enabled = false;  // Останавливаем таймер
+				const char* msg = e.what();
+				std::string errStr = (msg && msg[0]) ? msg : "Неизвестная ошибка при расшифровке";
+                TThread::Synchronize(nullptr, [this, errStr]() {
+                    memStatus->Lines->Add("Ошибка: " + strStd(errStr));
+                    MessageDlg(strStd(errStr), mtError, TMsgDlgButtons() << mbOK, 0);
+                    btnDecrypt->Caption = "Расшифровать";
+                    isProcessing = false;
+					Timer1->Enabled = false;
+					UnlockForm(this);
+                });
+            } catch (...) {
+				hasErrors = true;
+                TThread::Synchronize(nullptr, [this]() {
+                    memStatus->Lines->Add("Ошибка расшифровки: неизвестное исключение.");
+                    MessageDlg("Ошибка расшифровки: неизвестное исключение. Проверьте логин, пароль/токен и наличие ключа.", mtError, TMsgDlgButtons() << mbOK, 0);
+                    btnDecrypt->Caption = "Расшифровать";
+                    isProcessing = false;
+					Timer1->Enabled = false;
 					UnlockForm(this);
                 });
             }
@@ -873,6 +939,15 @@ void __fastcall TformMain::btnGenerateRsaKeysClick(TObject *Sender)
 		KeyGenerator generator;
 		generator.GenerateKeys(username, password);
 		ShowMessage("RSA ключи успешно сгенерированы и сохранены!");
+
+		int bind = MessageDlg("Привязать авторизацию к этому компьютеру?\nТогда вход будет выполняться автоматически на этом ПК без ввода пароля.", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+		if (bind == mrYes) {
+			try {
+				std::string decKey = KeyGenerator::DecryptPrivateKey(username, password);
+				SystemTokenAuth::SaveSystemToken(username, decKey);
+			} catch (...) {}
+		}
+
 		EditPassword->Clear();
 
 		if(keysExist)
@@ -939,6 +1014,18 @@ void __fastcall TformMain::FormShow(TObject *Sender)
         lstOperators->Items->Add(displayName.c_str());
 	}
 
+	// Авторизация по системному токену (привязанному к этому ПК)
+	std::pair<bool, std::string> tokenResult = SystemTokenAuth::TryAuthorizeBySystemToken();
+	if (tokenResult.first) {
+		if (!tokenResult.second.empty())
+			EditUserName->Text = tokenResult.second.c_str();
+		SetAuthorizationUiState(true, tokenResult.second.empty() ? "Система" : tokenResult.second);
+	}
+
+	// Обработка двойного щелчка по .cry2
+	RegisterCry2FileAssociation();
+	// Файл запроса: пишется при запуске с аргументом .cry2 (первый экземпляр) или другим экземпляром
+	CheckPendingDecryptFile();
 }
 
 //---------------------------------------------------------------------------
@@ -962,13 +1049,33 @@ void __fastcall TformMain::N1Click(TObject *Sender)
 
 void __fastcall TformMain::Timer2Timer(TObject *Sender)
 {
+	// Сначала проверяем авторизацию по системному токену (привязан к этому ПК)
+	std::pair<bool, std::string> tokenResult = SystemTokenAuth::TryAuthorizeBySystemToken();
+	if (tokenResult.first) {
+		SetAuthorizationUiState(true, tokenResult.second.empty() ? "Система" : tokenResult.second);
+		CheckPendingDecryptFile();
+		return;
+	}
+
 	std::string username = stdStr(EditUserName->Text);
 	std::string password = stdStr(EditPassword->Text);
 
 	if (username.empty() || password.empty()) {
 		SetAuthorizationUiState(false, "");
 	} else {
-		SetAuthorizationUiState(IsAuthorizedByCredentials(username, password), username);
+		bool auth = IsAuthorizedByCredentials(username, password);
+		SetAuthorizationUiState(auth, username);
+		// При первой успешной авторизации по логину/паролю на главной форме предлагаем привязать токен
+		if (auth && !offeredBindTokenThisSession) {
+			offeredBindTokenThisSession = true;
+			int bind = MessageDlg("Привязать авторизацию к этому компьютеру?\nТогда вход будет выполняться автоматически на этом ПК без ввода пароля.", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+			if (bind == mrYes) {
+				try {
+					std::string decKey = KeyGenerator::DecryptPrivateKey(username, password);
+					SystemTokenAuth::SaveSystemToken(username, decKey);
+				} catch (...) { /* ключ не удалось расшифровать */ }
+			}
+		}
 	}
 
 	CheckPendingDecryptFile();
@@ -1349,4 +1456,146 @@ void __fastcall TformMain::UnlockForm(TWinControl* parentControl) {
             UnlockForm(static_cast<TWinControl*>(control));
         }
     }
+}
+
+bool TformMain::PromptNewPasswordForUnbind(String& newPassword)
+{
+	TForm* dialog = new TForm(this);
+	try {
+		dialog->BorderStyle = bsDialog;
+		dialog->Position = poScreenCenter;
+		dialog->Caption = "Перешифровка ключа при снятии привязки";
+		dialog->ClientWidth = 520;
+		dialog->ClientHeight = 280;
+
+		TLabel* lbHint = new TLabel(dialog);
+		lbHint->Parent = dialog;
+		lbHint->Left = 20;
+		lbHint->Top = 16;
+		lbHint->Width = 480;
+		lbHint->Height = 52;
+		lbHint->AutoSize = false;
+		lbHint->WordWrap = true;
+		lbHint->Caption = "Сейчас RSA-ключ зашифрован токеном. При снятии привязки его нужно перешифровать паролем. Введите новый пароль (для входа по логину и паролю):";
+
+		TLabel* lbNew = new TLabel(dialog);
+		lbNew->Parent = dialog;
+		lbNew->Left = 20;
+		lbNew->Top = 80;
+		lbNew->Caption = "Новый пароль:";
+
+		TMaskEdit* edtNew = new TMaskEdit(dialog);
+		edtNew->Parent = dialog;
+		edtNew->Left = 20;
+		edtNew->Top = 104;
+		edtNew->Width = 480;
+		edtNew->PasswordChar = '*';
+
+		TLabel* lbConfirm = new TLabel(dialog);
+		lbConfirm->Parent = dialog;
+		lbConfirm->Left = 20;
+		lbConfirm->Top = 148;
+		lbConfirm->Caption = "Подтверждение:";
+
+		TMaskEdit* edtConfirm = new TMaskEdit(dialog);
+		edtConfirm->Parent = dialog;
+		edtConfirm->Left = 20;
+		edtConfirm->Top = 172;
+		edtConfirm->Width = 480;
+		edtConfirm->PasswordChar = '*';
+
+		TButton* btnOk = new TButton(dialog);
+		btnOk->Parent = dialog;
+		btnOk->Caption = "OK";
+		btnOk->ModalResult = mrOk;
+		btnOk->Default = true;
+		btnOk->Left = 310;
+		btnOk->Top = 228;
+		btnOk->Width = 80;
+
+		TButton* btnCancel = new TButton(dialog);
+		btnCancel->Parent = dialog;
+		btnCancel->Caption = "Отмена";
+		btnCancel->ModalResult = mrCancel;
+		btnCancel->Cancel = true;
+		btnCancel->Left = 400;
+		btnCancel->Top = 228;
+		btnCancel->Width = 80;
+
+		dialog->ActiveControl = edtNew;
+		dialog->OnShow = (TNotifyEvent)&(this->DialogShowSwitchKeyboard);
+
+		if (dialog->ShowModal() != mrOk)
+			return false;
+
+		newPassword = edtNew->Text;
+		String confirm = edtConfirm->Text;
+		if (newPassword != confirm) {
+			ShowMessage("Пароли не совпадают.");
+			return false;
+		}
+		std::string msg;
+		if (!isPasswordStrong(stdStr(newPassword), msg)) {
+			ShowMessage("Пароль не соответствует требованиям:\n" + strStd(msg) +
+				"\nТребования: минимум 8 символов, строчные и заглавные буквы, цифра, спецсимвол.");
+			return false;
+		}
+		return !newPassword.IsEmpty();
+	} __finally {
+		delete dialog;
+	}
+}
+
+void TformMain::UnbindSystemToken()
+{
+	std::pair<bool, std::string> tokenResult = SystemTokenAuth::TryAuthorizeBySystemToken();
+	if (!tokenResult.first || tokenResult.second.empty()) {
+		ShowMessage("Токен не привязан к этому компьютеру.");
+		return;
+	}
+
+	std::string username = tokenResult.second;
+	std::string decKey = SystemTokenAuth::LoadPrivateKeyWithToken(username);
+	if (decKey.empty()) {
+		ShowMessage("Не удалось загрузить ключ из токена.");
+		return;
+	}
+
+	if (MessageDlg("Сейчас ключ зашифрован токеном. При снятии привязки его нужно перешифровать паролем. Далее для входа используйте логин и новый пароль. Продолжить?",
+		mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0) != mrYes)
+		return;
+
+	String newPassword;
+	if (!PromptNewPasswordForUnbind(newPassword))
+		return;
+
+	if (!KeyGenerator::EncryptAndSavePrivateKey(username, stdStr(newPassword), decKey)) {
+		ShowMessage("Ошибка перешифровки ключа.");
+		return;
+	}
+
+	SystemTokenAuth::ClearSystemToken();
+	SetAuthorizationUiState(false, "");
+	ShowMessage("Привязка снята. Для входа введите логин и новый пароль.");
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TformMain::actRemoveTokenExecute(TObject *Sender)
+{
+	UnbindSystemToken();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TformMain::EditUserNameEnter(TObject *Sender)
+{
+	SwitchToEnglishKeyboard();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TformMain::DialogShowSwitchKeyboard(TObject *Sender)
+{
+	SwitchToEnglishKeyboard();
 }

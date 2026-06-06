@@ -2,8 +2,8 @@ object formMain: TformMain
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
-  Caption = #1055#1088#1086#1075#1088#1072#1084#1084#1072'_3.1'
-  ClientHeight = 1451
+  Caption = #1055#1088#1086#1075#1088#1072#1084#1084#1072'_3.2'
+  ClientHeight = 1360
   ClientWidth = 1288
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object formMain: TformMain
   object lbAuto: TLabel
     AlignWithMargins = True
     Left = 6
-    Top = 1400
+    Top = 1309
     Width = 1276
     Height = 45
     Margins.Left = 6
@@ -34,6 +34,7 @@ object formMain: TformMain
     Font.Style = []
     ParentFont = False
     Visible = False
+    ExplicitTop = 1400
     ExplicitWidth = 252
   end
   object lbLogin: TLabel
@@ -313,7 +314,6 @@ object formMain: TformMain
         Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1088#1080#1087#1090#1086#1075#1088#1072#1084#1084#1099' '#1076#1083#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1072#1085#1080#1103
         TabOrder = 1
         OnClick = btnAddCryptsClick
-        ExplicitWidth = 1268
       end
       object btnDecrypt: TButton
         AlignWithMargins = True
@@ -329,7 +329,6 @@ object formMain: TformMain
         Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1072#1090#1100' '#1082#1088#1080#1087#1090#1086#1075#1088#1072#1084#1084#1099
         TabOrder = 2
         OnClick = btnDecryptClick
-        ExplicitWidth = 1268
       end
       object edtSaveMessageDir: TEdit
         AlignWithMargins = True
@@ -347,7 +346,6 @@ object formMain: TformMain
         TabOrder = 3
         TextHint = ' ('#1076#1074#1086#1081#1085#1086#1081' '#1096#1077#1083#1095#1086#1082' '#1076#1083#1103' '#1074#1099#1073#1086#1088#1072')'
         OnDblClick = edtSaveMessageDirDblClick
-        ExplicitWidth = 1268
       end
     end
     object TabSheet1: TTabSheet
@@ -385,7 +383,6 @@ object formMain: TformMain
         Caption = #1057#1075#1077#1085#1077#1088#1080#1088#1086#1074#1072#1090#1100' '#1085#1086#1074#1099#1077' '#1082#1083#1102#1095#1080
         TabOrder = 0
         OnClick = btnGenerateRsaKeysClick
-        ExplicitWidth = 1256
       end
       object btnSaveOpenRsaKey: TButton
         AlignWithMargins = True
@@ -401,7 +398,6 @@ object formMain: TformMain
         Caption = #1055#1086#1076#1077#1083#1080#1090#1100#1089#1103' '#1086#1090#1082#1088#1099#1090#1099#1084' '#1082#1083#1102#1095#1086#1084
         TabOrder = 1
         OnClick = btnSaveOpenRsaKeyClick
-        ExplicitWidth = 1256
       end
       object lstOperators: TListBox
         AlignWithMargins = True
@@ -434,7 +430,6 @@ object formMain: TformMain
         Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1086#1090#1082#1088#1099#1090#1099#1093' '#1082#1083#1102#1095#1077#1081' '#1072#1073#1086#1085#1077#1085#1090#1086#1074
         TabOrder = 3
         OnClick = btnLoadOpenRsaKeyClick
-        ExplicitWidth = 1256
       end
     end
   end
@@ -451,6 +446,7 @@ object formMain: TformMain
     Align = alTop
     AutoSize = False
     TabOrder = 1
+    OnEnter = EditUserNameEnter
     ExplicitWidth = 1264
   end
   object EditPassword: TMaskEdit
@@ -474,7 +470,7 @@ object formMain: TformMain
     Left = 2
     Top = 1085
     Width = 1284
-    Height = 303
+    Height = 212
     Margins.Left = 2
     Margins.Top = 6
     Margins.Right = 2
@@ -487,7 +483,7 @@ object formMain: TformMain
     object Gauge1: TGauge
       AlignWithMargins = True
       Left = 8
-      Top = 248
+      Top = 157
       Width = 1268
       Height = 47
       Margins.Left = 6
@@ -505,7 +501,7 @@ object formMain: TformMain
       Left = 8
       Top = 40
       Width = 1268
-      Height = 196
+      Height = 105
       Margins.Left = 6
       Margins.Top = 6
       Margins.Right = 6
@@ -537,7 +533,7 @@ object formMain: TformMain
     end
   end
   object Timer2: TTimer
-    Interval = 2000
+    Interval = 500
     OnTimer = Timer2Timer
     Left = 860
     Top = 372
@@ -553,6 +549,11 @@ object formMain: TformMain
       Caption = 'generateKeys'
       ShortCut = 49223
       OnExecute = actGenKeysExecute
+    end
+    object actRemoveToken: TAction
+      Caption = #1057#1085#1103#1090#1100' '#1087#1088#1080#1074#1103#1079#1082#1091' '#1090#1086#1082#1077#1085#1072
+      ShortCut = 49234
+      OnExecute = actRemoveTokenExecute
     end
   end
   object SaveDialog1: TSaveDialog
