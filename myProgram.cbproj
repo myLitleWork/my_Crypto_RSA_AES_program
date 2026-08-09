@@ -166,6 +166,9 @@
         <VerInfo_Release>3</VerInfo_Release>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=3.0.3.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.0.0.0;Comments=sg-</VerInfo_Keys>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <Icon_MainIcon>myProgram_Icon.ico</Icon_MainIcon>
+        <UWP_CppLogo44>Oxygen-Icons.org-Oxygen-Apps-preferences-desktop-cryptography.256.png</UWP_CppLogo44>
+        <UWP_CppLogo150>Oxygen-Icons.org-Oxygen-Apps-preferences-desktop-cryptography.256.png</UWP_CppLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -211,6 +214,10 @@
             <DependentOn>StreamWriter.h</DependentOn>
             <BuildOrder>14</BuildOrder>
         </CppCompile>
+        <CppCompile Include="SystemTokenAuth.cpp">
+            <DependentOn>SystemTokenAuth.h</DependentOn>
+            <BuildOrder>17</BuildOrder>
+        </CppCompile>
         <LibFiles Include="Win32\libboost_serialization-bcb32c-d-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>10</BuildOrder>
             <IgnorePath>true</IgnorePath>
@@ -252,10 +259,33 @@
                     <ProjectProperties Name="IndexFiles">False</ProjectProperties>
                 </ProjectProperties>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDAC280.bpl">Embarcadero FireDAC Database Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACCommonDriver280.bpl">Embarcadero FireDAC Common Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACCommon280.bpl">Embarcadero FireDAC Common Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACPgDriver280.bpl">Embarcadero FireDAC PostgreSQL Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACMSAccDriver280.bpl">Embarcadero FireDAC MS Access Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACCommonODBC280.bpl">Embarcadero FireDAC Common ODBC Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACIBDriver280.bpl">Embarcadero FireDAC IB Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACMySQLDriver280.bpl">Embarcadero FireDAC MySQL Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACSqliteDriver280.bpl">Embarcadero FireDAC Sqlite Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACADSDriver280.bpl">Embarcadero FireDAC ADS Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACDBXDriver280.bpl">Embarcadero FireDAC DBX Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACDSDriver280.bpl">Embarcadero FireDAC DataSnap Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACMongoDBDriver280.bpl">Embarcadero FireDAC MongoDB Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACTDataDriver280.bpl">Embarcadero FireDAC Teradata Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACASADriver280.bpl">Embarcadero FireDAC ASA Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACInfxDriver280.bpl">Embarcadero FireDAC Infx Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACDb2Driver280.bpl">Embarcadero FireDAC Db2 Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACMSSQLDriver280.bpl">Embarcadero FireDAC SQL Server Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACOracleDriver280.bpl">Embarcadero FireDAC Oracle Driver Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\FireDACODBCDriver280.bpl">Embarcadero FireDAC ODBC Driver Components</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\SynEditCR280.bpl">TurboPack SynEdit CBuilder runtime package</Excluded_Packages>
+                    <Excluded_Packages Name="D:\Libs\FastReport\LibD28\dclfrxPDF28.bpl">FastReport VCL PDF Component</Excluded_Packages>
+                    <Excluded_Packages Name="D:\Libs\FastReport\LibD28\dclfs28.bpl">FastScript 1.9 Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclFMXFireDAC280.bpl">Embarcadero FMX FireDAC Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k280.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp280.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
                 <Source>
@@ -352,6 +382,13 @@
                 <DeployFile LocalName="C:\Users\Sg\Documents\Embarcadero\Studio\Projects\Win32\myCrypto-bcb.lib" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Oxygen-Icons.org-Oxygen-Apps-preferences-desktop-cryptography.256.png" Configuration="Release" Class="UWP_CppLogo44">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
