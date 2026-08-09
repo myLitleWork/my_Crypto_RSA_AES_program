@@ -80,8 +80,6 @@
         <UsePackages>true</UsePackages>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Custom_Styles>&quot;Aqua Light Slate|VCLSTYLE|$(BDSCOMMONDIR)\Styles\AquaLightSlate.vsf&quot;</Custom_Styles>
-        <IncludePath>C:\Users\Sg\Documents\Embarcadero\Studio\Projects\;F:\ShifRator\;$(IncludePath)</IncludePath>
-        <ILINK_LibraryPath>C:\Users\Sg\Documents\Embarcadero\Studio\Projects\;F:\ShifRator\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;ChatGptWizard;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;EhLib280;EhLibADODataDrivers280;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;frx28;frxADO28;frxcs28;frxDB28;frxDBX28;frxe28;frxFD28;frxPDF28;fs28;fsADO28;fsDB28;fsFD28;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;soapmidas;soaprtl;soapserver;SynEditCR;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
@@ -93,19 +91,18 @@
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <BCC_PCHName_Clang>myProgramPCH1.h</BCC_PCHName_Clang>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <ILINK_LibraryPath>F:\ShifRator\Win32\;C:\Users\Sg\Documents\Embarcadero\Studio\Projects\Win32\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindcompvclsmp;bindcompvclwinx;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;EhLib280;EhLibADODataDrivers280;emsclient;emsclientfiredac;emsedge;emshosting;emsserverresource;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACCommonODBC;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMongoDBDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;soapmidas;soaprtl;soapserver;SynEditCR;tethering;vcl;vclactnband;vcldb;vcldsnap;vcledge;vclFireDAC;vclie;vclimg;VCLRESTComponents;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
-        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+        <IncludePath>$(BDSINCLUDE)\windows\vcl;C:\Users\Sg\Documents\Embarcadero\Studio\Projects\;F:\ShifRator\;$(IncludePath)</IncludePath>
         <BCC_PCHName_Clang>myProgramPCH1.h</BCC_PCHName_Clang>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <ILINK_LibraryPath>F:\ShifRator3\Win64\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>F:\ShifRator3\Win64\;C:\Users\Sg\Documents\Embarcadero\Studio\Projects\;F:\ShifRator\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -156,29 +153,36 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <UsePackages>false</UsePackages>
         <DynamicRTL>false</DynamicRTL>
         <LinkPackageStatics>rtl.lib;vcl.lib;vclx.lib;VclSmp.lib</LinkPackageStatics>
-        <ILINK_LibraryPath>C:\Users\Sg\Documents\Embarcadero\Studio\Projects\Win32;C:\Program Files (x86)\Embarcadero\Studio\22.0\include\boost;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <IncludePath>C:\Program Files (x86)\Embarcadero\Studio\22.0\include\boost;C:\Program Files (x86)\Embarcadero\Studio\22.0\include\boost\archive;$(IncludePath)</IncludePath>
+        <ILINK_LibraryPath>$(BDS)\lib\boost;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <IncludePath>$(BDS)\include\boost;$(BDS)\include\boost\archive;$(IncludePath)</IncludePath>
         <VerInfo_Release>3</VerInfo_Release>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=3.0.3.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.0.0.0;Comments=sg-</VerInfo_Keys>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
         <Icon_MainIcon>myProgram_Icon.ico</Icon_MainIcon>
         <UWP_CppLogo44>Oxygen-Icons.org-Oxygen-Apps-preferences-desktop-cryptography.256.png</UWP_CppLogo44>
         <UWP_CppLogo150>Oxygen-Icons.org-Oxygen-Apps-preferences-desktop-cryptography.256.png</UWP_CppLogo150>
+        <PreBuildEvent>call &quot;$(MSBuildProjectDirectory)\scripts\PreBuild-ShifRator3Version.bat&quot;</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PostBuildEvent>call &quot;$(MSBuildProjectDirectory)\scripts\PostBuild-ShifRator3Portable.bat&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;VclSmp.bpi</LinkPackageImports>
     </PropertyGroup>
     <ItemGroup>
-        <LibFiles Include="C:\Users\Sg\Documents\Embarcadero\Studio\Projects\Win32\myCrypto-bcb.lib" Condition="'$(Platform)'=='Win32'">
+        <LibFiles Include="myCrypto-bcb.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>6</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
+        <ResourceCompile Include="ShifRator3Version.rc" Condition="'$(Cfg_2_Win32)'!=''">
+            <BuildOrder>1</BuildOrder>
+        </ResourceCompile>
         <CppCompile Include="CryptoArchive.cpp">
             <DependentOn>CryptoArchive.h</DependentOn>
             <BuildOrder>15</BuildOrder>
@@ -218,19 +222,19 @@
             <DependentOn>SystemTokenAuth.h</DependentOn>
             <BuildOrder>17</BuildOrder>
         </CppCompile>
-        <LibFiles Include="Win32\libboost_serialization-bcb32c-d-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
+        <LibFiles Include="$(BDS)\lib\boost\libboost_serialization-bcb32c-d-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>10</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
-        <LibFiles Include="Win32\libboost_serialization-bcb32c-mt-d-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
+        <LibFiles Include="$(BDS)\lib\boost\libboost_serialization-bcb32c-mt-d-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>11</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
-        <LibFiles Include="Win32\libboost_serialization-bcb32c-mt-sd-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
+        <LibFiles Include="$(BDS)\lib\boost\libboost_serialization-bcb32c-mt-sd-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>12</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
-        <LibFiles Include="Win32\libboost_serialization-bcb32c-sd-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
+        <LibFiles Include="$(BDS)\lib\boost\libboost_serialization-bcb32c-sd-x32-1_70.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>13</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
@@ -367,7 +371,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Sg\Documents\Embarcadero\Studio\Projects\Win32\myCrypto-bcb.lib" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="myCrypto-bcb.lib" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -379,7 +383,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Sg\Documents\Embarcadero\Studio\Projects\Win32\myCrypto-bcb.lib" Configuration="Release" Class="ProjectFile">
+                <DeployFile LocalName="myCrypto-bcb.lib" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -392,7 +396,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\libboost_serialization-bcb32c-d-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="$(BDS)\lib\boost\libboost_serialization-bcb32c-d-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -404,7 +408,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\libboost_serialization-bcb32c-mt-d-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="$(BDS)\lib\boost\libboost_serialization-bcb32c-mt-d-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -416,7 +420,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\libboost_serialization-bcb32c-mt-sd-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="$(BDS)\lib\boost\libboost_serialization-bcb32c-mt-sd-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -428,7 +432,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\libboost_serialization-bcb32c-sd-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="$(BDS)\lib\boost\libboost_serialization-bcb32c-sd-x32-1_70.lib" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

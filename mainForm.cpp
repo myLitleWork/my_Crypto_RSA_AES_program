@@ -25,6 +25,7 @@
 #include <regex>
 #include <imm.h>
 #pragma comment(lib, "imm32.lib")
+#pragma comment(lib, "version.lib")
 
 #include <atomic>
 #include <thread>
@@ -38,6 +39,30 @@ std::atomic<bool> stopFlag(false); // Флаг остановки процесс
 //------------------------------------------------------------------------
 namespace
 {
+String GetPeProductVersion()
+{
+	DWORD ignored = 0;
+	const DWORD size = GetFileVersionInfoSizeW(Application->ExeName.c_str(), &ignored);
+	if (size == 0)
+		return L"";
+
+	std::vector<BYTE> data(size);
+	if (!GetFileVersionInfoW(Application->ExeName.c_str(), 0, size, data.data()))
+		return L"";
+
+	VS_FIXEDFILEINFO* fixedInfo = nullptr;
+	UINT fixedInfoSize = 0;
+	if (!VerQueryValueW(data.data(), L"\\", reinterpret_cast<void**>(&fixedInfo),
+			&fixedInfoSize) || fixedInfo == nullptr ||
+		fixedInfoSize < sizeof(VS_FIXEDFILEINFO) ||
+		fixedInfo->dwSignature != VS_FFI_SIGNATURE)
+		return L"";
+
+	return IntToStr(static_cast<int>(HIWORD(fixedInfo->dwProductVersionMS))) +
+		L"." + IntToStr(static_cast<int>(LOWORD(fixedInfo->dwProductVersionMS))) +
+		L"." + IntToStr(static_cast<int>(HIWORD(fixedInfo->dwProductVersionLS)));
+}
+
 std::wstring GetAppDataFolder()
 {
 	wchar_t buf[MAX_PATH];
@@ -238,6 +263,8 @@ TformMain *formMain;
 __fastcall TformMain::TformMain(TComponent* Owner)
 	: TForm(Owner)
 {
+	const String version = GetPeProductVersion();
+	Caption = version.IsEmpty() ? L"ShifRator3" : L"ShifRator3 v" + version;
 }
 
 void TformMain::CheckPendingDecryptFile()

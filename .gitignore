@@ -14,6 +14,7 @@ Win32/
 Win64/
 Debug/
 Release/
+out/
 Bpl/
 Dcp/
 
@@ -23,6 +24,11 @@ Dcp/
 *.bpl
 *.dcp
 *.lib
+
+# Verified portable runtime dependency.
+!runtime/
+!runtime/myCrypto.dll
+!myCrypto-bcb.lib
 
 *.rar
 *.zip

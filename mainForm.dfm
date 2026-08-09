@@ -2,7 +2,7 @@ object formMain: TformMain
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
-  Caption = #1055#1088#1086#1075#1088#1072#1084#1084#1072'_3.2'
+  Caption = 'ShifRator3'
   ClientHeight = 1360
   ClientWidth = 1288
   Color = clBtnFace
