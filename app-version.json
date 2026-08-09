@@ -1,10 +1,10 @@
 {
   "formatVersion": 1,
   "releaseFingerprintFormat": 2,
-  "releaseInputSha256": "0b1ece3b73f1effe6d3de070da6ded265c17ad0a1d59e77bfc2bf9cd5f04aa4f",
+  "releaseInputSha256": "0a93a33e3f2fa77ab3a54aaa9b9126791141052deaa76d5f7e27353141d0cd3c",
   "major": 3,
   "minor": 2,
-  "patch": 1,
+  "patch": 2,
   "titleTemplate": "ShifRator3 v{version}",
   "productName": "ShifRator3"
 }
