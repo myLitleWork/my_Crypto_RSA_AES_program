@@ -123,13 +123,8 @@ function Copy-SafeTree([string]$SourceRoot, [string]$DestinationRoot) {
     }
 }
 
-$getNames = @(
-    (Join-Path $projectRoot '..\..\TOOLS\scripts\release\Get-VclAppVersionNames.ps1'),
-    (Join-Path $projectRoot '..\..\..\TOOLS\scripts\release\Get-VclAppVersionNames.ps1')
-) | ForEach-Object { [IO.Path]::GetFullPath($_) } |
-    Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
-    Select-Object -First 1
-if ($null -eq $getNames) { throw 'Get-VclAppVersionNames.ps1 not found.' }
+$getNames = & (Join-Path $PSScriptRoot 'Find-WorkspaceReleaseRoot.ps1') `
+    -Name 'Get-VclAppVersionNames.ps1' -StartPath $projectRoot
 $versionInfo = & $getNames -ProjectRoot $projectRoot -ProductName $productName
 $versionDocument = Get-Content -LiteralPath (Join-Path $projectRoot 'app-version.json') `
     -Raw | ConvertFrom-Json
@@ -340,12 +335,9 @@ try {
     if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
 }
 
-$cloudHelper = @(
-    (Join-Path $projectRoot '..\..\TOOLS\scripts\release\Publish-ReleasePackageIfConfigured.ps1'),
-    (Join-Path $projectRoot '..\..\..\TOOLS\scripts\release\Publish-ReleasePackageIfConfigured.ps1')
-) | ForEach-Object { [IO.Path]::GetFullPath($_) } |
-    Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
-    Select-Object -First 1
+$cloudHelper = & (Join-Path $PSScriptRoot 'Find-WorkspaceReleaseRoot.ps1') `
+    -Name 'Publish-ReleasePackageIfConfigured.ps1' -StartPath $projectRoot `
+    -Optional
 $configuredCloudRoot = $CloudRoot
 if ([string]::IsNullOrWhiteSpace($configuredCloudRoot)) { $configuredCloudRoot = $env:WORKSPACE_RELEASE_CLOUD_ROOT }
 if ([string]::IsNullOrWhiteSpace($configuredCloudRoot)) {

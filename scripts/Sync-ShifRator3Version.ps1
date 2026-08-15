@@ -8,13 +8,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$resolveScript = @(
-    (Join-Path $project '..\..\TOOLS\scripts\release\Resolve-WorkspaceReleaseScript.ps1'),
-    (Join-Path $project '..\..\..\TOOLS\scripts\release\Resolve-WorkspaceReleaseScript.ps1')
-) | ForEach-Object { [IO.Path]::GetFullPath($_) } |
-    Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
-    Select-Object -First 1
-if ($null -eq $resolveScript) { throw 'Resolve-WorkspaceReleaseScript.ps1 not found.' }
+$resolveScript = & (Join-Path $PSScriptRoot 'Find-WorkspaceReleaseRoot.ps1') `
+    -Name 'Resolve-WorkspaceReleaseScript.ps1' -StartPath $project
 
 $helper = & $resolveScript -ScriptName 'Sync-VclReleaseVersion.ps1' -StartPath $project
 $arguments = @{
